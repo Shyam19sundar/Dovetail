@@ -1,0 +1,39 @@
+.chatList {
+    flex: 0.3;
+    background-color: #b19cd9;
+}
+.chatList-search {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 70%;
+    margin: 10px auto;
+}
+.chatList-search > input {
+    width: 100%;
+    height: 25px;
+    border-radius: 15px;
+    padding: 5px 10px;
+    outline: none;
+}
+#searchIcon {
+    position: absolute;
+    right: 10px;
+}
+.chatList-contact {
+    display: flex;
+    align-items: center;
+}
+.chatList-contact > img {
+    width: 80px;
+}
+.chatList-contact {
+    width: 70%;
+    margin: 15px auto;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #404040;
+}
+.chatList-contact > img {
+    padding-right: 20px;
+}
