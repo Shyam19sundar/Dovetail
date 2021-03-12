@@ -7,8 +7,8 @@ import Chat from "./components/Chat";
 
 function App() {
   return (
-    <div className="app">
-      <Router>
+    <Router>
+      <div className="app">
         <Header />
         <div className="app-content">
           <Leftbar />
@@ -21,9 +21,8 @@ function App() {
             </Route>
           </Switch>
         </div>
-      </Router>
-
-    </div>
+      </div>
+    </Router>
   );
 }
 
