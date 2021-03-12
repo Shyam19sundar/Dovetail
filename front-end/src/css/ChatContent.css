@@ -1,0 +1,6 @@
+.chatContent {
+    flex: 0.7;
+    height: 100%;
+    
+    display: flex;
+}
