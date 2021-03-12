@@ -17,7 +17,6 @@ mongoose.connect("mongodb://localhost:27017/IoTDB", {
     useUnifiedTopology: true,
 });
 
-
 app.listen(app.get("port"), function () {
     console.log(`App started on port ${app.get("port")}`)
 })
