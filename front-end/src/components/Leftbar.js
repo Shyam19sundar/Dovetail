@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import HomeIcon from '@material-ui/icons/Home';
 import PersonIcon from '@material-ui/icons/Person';
 import ChatIcon from '@material-ui/icons/Chat';
@@ -6,9 +6,14 @@ import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import '../css/Leftbar.css'
 import { Link } from 'react-router-dom'
+import $ from "jquery"
 
 function Leftbar() {
     const [path, setPath] = useState(window.location.pathname)
+    useEffect(() => {
+        if (path === "/login")
+            $('.leftBar').hide()
+    }, [])
     return (
         <div className='leftBar'>
             <div>
