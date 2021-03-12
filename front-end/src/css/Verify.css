@@ -1,0 +1,15 @@
+.resendBtn {
+    cursor: pointer;
+  }
+  .count {
+    margin-left: 70%;
+  }
+  
+  .verify > div > button {
+    width: 100px !important;
+    margin: auto;
+  }
+  .verify {
+    padding: 15px;
+  }
+  
