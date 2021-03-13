@@ -64,6 +64,28 @@ io.on('connect', (socket) => {
     //     }
     // })
 });
+const auth = async (req, res, next) => {
+    var accessToken = req.headers["authorization"];
+    if (!accessToken)
+        return res.status(499).json({
+            message: "Access Token required",
+        });
+    accessToken = accessToken.split(" ")[1];
+    console.log(accessToken);
+    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
+        if (user) {
+            req.user = user;
+            next();
+        } else if (err.message === "jwt expired") {
+            return res.status(498).json({
+                message: "Access Token expired",
+            });
+        } else
+            return res.status(401).json({
+                message: "User not authorized",
+            });
+    });
+};
 
 mongoose.connect("mongodb+srv://admin-Dovetail:dovetail2sm@cluster0.nxnwd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
     useNewUrlParser: true,
@@ -91,7 +113,11 @@ const Verify = new mongoose.model("Verify", verifySchema);
 
 const userSchema = new mongoose.Schema({
     email: String,
-    password: String
+    password: String,
+    name: String,
+    dp: String,
+    interests: [],
+    works: []
 })
 const User = new mongoose.model("User", userSchema)
 
@@ -136,12 +162,26 @@ app.post('/newroom', (req, res) => {
     })
 })
 
+app.get('/directMessage', auth, (req, res) => {
+    console.log(req)
+    console.log(req.user)
+    console.log("kkk" + req.query.receiver)
+})
+
 app.post('/roomMessages', (req, res) => {
     console.log(req.body)
-    Room.findOne({ roomName: req.body.roomName }, (err, found) => {
-        if (!err && found) {
-            res.send(found)
-        }
+    Room.findOne({ roomName: req.body.roomName })
+        .populate('roomMembers')
+        .populate('roomMessages')
+        .exec(function (err, story) {
+            if (err) return handleError(err);
+            console.log(story);
+        })
+})
+
+app.get('/allMembers', (req, res) => {
+    User.find({}, (err, found) => {
+        res.send(found)
     })
 })
 
@@ -313,29 +353,6 @@ app.post("/refresh", (req, res) => {
         }
     });
 });
-
-const auth = async (req, res, next) => {
-    var accessToken = req.headers["authorization"];
-    if (!accessToken)
-        return res.status(499).json({
-            message: "Access Token required",
-        });
-    accessToken = accessToken.split(" ")[1];
-    console.log(accessToken);
-    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
-        if (user) {
-            req.user = user;
-            next();
-        } else if (err.message === "jwt expired") {
-            return res.status(498).json({
-                message: "Access Token expired",
-            });
-        } else
-            return res.status(401).json({
-                message: "User not authorized",
-            });
-    });
-};
 
 app.post("/protected", auth, (req, res) => {
     return res.status(200).json({ message: "Protected content accessed" });
