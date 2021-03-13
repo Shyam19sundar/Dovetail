@@ -4,6 +4,7 @@ import "../css/Login.css"
 import $ from 'jquery'
 import { Link, useHistory } from 'react-router-dom'
 import Cookies from "js-cookie";
+import { ToastContainer, toast } from 'react-toastify';
 
 function Login({ setPath }) {
     const history = useHistory()
@@ -20,7 +21,13 @@ function Login({ setPath }) {
                 console.log(data.data);
                 history.push('/')
                 setPath('/')
-            })
+            }).catch(err => {
+                if (err.response.status === 401)
+                    notify(err.response.data.message)
+                else
+                    notify('Something went wrong :/')
+            }
+            )
         }
         else {
             if (password === '' || null)
@@ -30,8 +37,15 @@ function Login({ setPath }) {
         }
 
     }
+
+    const notify = (message) => toast.error(message);
+
     return (
         <div className="login">
+            <ToastContainer
+                position="top-center"
+                autoClose={5000}
+                hideProgressBar={true} />
             <div className='login-container'>
                 <h1>Dovetail</h1>
                 <p>Login to your account!</p>

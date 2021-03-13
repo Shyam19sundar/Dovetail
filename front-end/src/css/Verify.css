@@ -3,7 +3,7 @@
   height: 100vh;
   margin: auto auto;
 }
-.verify > div {
+.verify-container {
   width: 50%;
   height: 30%;
   display: flex;
@@ -15,14 +15,14 @@
   left: 50%;
   transform: translate(-50%,-50%);
 }
-.verify > div > button {
+.verify-container > button {
   background-color: #34004a;
   color: aliceblue;
   padding: 7px;
   border-radius: 10px;
   outline: none;
 }
-.verify > div > input {
+.verify-container > input {
   width: 30%;
   padding: 10px;
 }
