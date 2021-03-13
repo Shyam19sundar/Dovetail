@@ -1,37 +1,52 @@
 import axios from '../axios'
 import React, { useState } from 'react'
 import "../css/Login.css"
+import $ from 'jquery'
+import { Link, useHistory } from 'react-router-dom'
+import Cookies from "js-cookie";
 
-function Login() {
-    const [email, setemail] = useState("")
-    const [password, setpassword] = useState("")
-    const handleSubmit = (e) => {
-        e.preventDefault()
-        axios.post("/login", {
-            email: email,
-            password: password
-        }).then(res => {
-            console.log(res.data)
-            console.log(res)
-        })
+function Login({ setPath }) {
+    const history = useHistory()
+    const [email, setEmail] = useState("")
+    const [password, setPassword] = useState("")
+    const handleSubmit = () => {
+        if ((email && password) !== ('' && undefined)) {
+            axios.post("/login", {
+                email: email,
+                password: password
+            }).then(data => {
+                Cookies.set("access", data.data.access, { sameSite: "strict" });
+                Cookies.set("refresh", data.data.refresh, { sameSite: "strict" });
+                console.log(data.data);
+                history.push('/')
+                setPath('/')
+            })
+        }
+        else {
+            if (password === '' || null)
+                $('#password-bottom').css({ backgroundColor: 'red', width: '100%' })
+            if (email === '' || null)
+                $('#loginEmail-bottom').css({ backgroundColor: 'red', width: '100%' })
+        }
+
     }
     return (
-        <div className="login__body">
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-9">
-                        <form className="box" onSubmit={handleSubmit}>
-                            <h1>Login</h1>
-                            <p className="text-muted"> Please enter your login and password!</p>
-                            <input required type="email" onChange={(e) => setemail(e.target.value)} placeholder="Email" />
-                            <input required type="password" onChange={(e) => setpassword(e.target.value)} placeholder="Password" />
-                            <a className="forgot text-muted" href="#">Forgot password?</a>
-                            <input type="submit" name="" value="Login" href="#" />
-                            <p className="text-muted">Not Having Account</p>
-                            <input name="" value="Sign Up" href="#" />
-                        </form>
-                    </div>
+        <div className="login">
+            <div className='login-container'>
+                <h1>Dovetail</h1>
+                <p>Login to your account!</p>
+                <div className='loginInput-container'>
+                    <input type='email' placeholder='Email' id='login-email' onChange={(e) => setEmail(e.target.value)} />
+                    <span id='loginEmail-bottom'></span>
                 </div>
+                <div className='loginInput-container'>
+                    <input type='password' placeholder='Password' id='login-password' onChange={(e) => setPassword(e.target.value)} />
+                    <span id='password-bottom'></span>
+                </div>
+                <button onClick={handleSubmit}>Submit</button>
+                <Link to='/signup'>
+                    Not having an account? Sign-up here !
+                </Link>
             </div>
         </div>
     )

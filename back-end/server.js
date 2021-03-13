@@ -61,7 +61,7 @@ function randomString(length, chars) {
         result += chars[Math.round(Math.random() * (chars.length - 1))];
     return result;
 }
-function createUser(email, password, req, res) {
+function createUser(email, password, pass, res) {
     User.create({
         email: email,
         password: password
@@ -70,56 +70,69 @@ function createUser(email, password, req, res) {
         else {
             res.redirect(
                 307,
-                "/login?user=" + true + "&password=" + password
+                "/login"
             );
             user.save();
         }
     })
 }
 app.post("/verify", (req, res) => {
-    Verify.deleteMany({ email: req.body.email }, (err) => {
-        if (err) {
-            console.log(err);
-        } else {
-            console.log("deleted");
+    User.findOne({ email: req.body.email }, (err, found) => {
+        if (found) {
+            res.status(409).json({
+                message: "Already signed-up",
+            })
         }
-    });
-    var random = randomString(
-        6,
-        "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
-    );
-    const user = new Verify({
-        email: req.body.email,
-        otp: random,
-    });
-    user.save();
-    var mailOptions = {
-        from: process.env.SMTP_USER,
-        to: req.body.email,
-        subject: "Verify your email address",
-        text:
-            "To finish setting up your account, we just need to make sure this email address is yours.",
-        html:
-            "<div>To verify your email address use this security code: '" +
-            random +
-            "'</div>",
-    };
+        else {
+            Verify.deleteMany({ email: req.body.email }, (err) => {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log("deleted");
+                }
+            });
+            var random = randomString(
+                6,
+                "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+            );
+            const user = new Verify({
+                email: req.body.email,
+                otp: random,
+            });
+            user.save();
+            var mailOptions = {
+                from: process.env.SMTP_USER,
+                to: req.body.email,
+                subject: "Verify your email address",
+                text:
+                    "To finish setting up your account, we just need to make sure this email address is yours.",
+                html:
+                    "<div>To verify your email address use this security code: '" +
+                    random +
+                    "'</div>",
+            };
 
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log("Email sent: " + info.response);
+            transporter.sendMail(mailOptions, function (error, info) {
+                if (error) {
+                    console.log(error);
+                } else {
+                    console.log("Email sent: " + info.response);
+                }
+            });
+            res.status(200).json({
+                message: "Verification mail sent!",
+            })
         }
     });
+
 });
 app.post("/otp-verify", (req, res) => {
     Verify.findOne({ email: req.body.email }, (err, found) => {
         if (!err) {
             if (found.otp == req.body.otp) {
-                res.status(200).send("verified machi");
+                res.status(200).send("verified");
             } else {
-                res.send("OTP incorrect");
+                res.status(401).send("OTP incorrect");
             }
         } else {
             res.send("Email not found");
@@ -129,14 +142,15 @@ app.post("/otp-verify", (req, res) => {
 
 //For Authentication and Authorization
 app.post("/signup", (req, res) => {
-    const email = req.body.email;
-    const pass = req.body.password;
+    const email = req.body.user.email;
+    const pass = req.body.user.password;
     if (email && pass) {
         bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(pass, salt, function (err, hash) {
                 if (!err) {
-                    createUser(email, hash, req, res);
-                } else res.send("error in hash gen");
+                    createUser(email, hash, pass, res);
+                } else
+                    return res.send("error in hash gen");
             });
         });
     } else
@@ -146,12 +160,14 @@ app.post("/signup", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-    const user_email = req.body.user ? req.body.email : req.body.loginDetails.email;
-    const typePass = req.query.password || req.body.loginDetails.password;
+    const user_email = req.body.user ? req.body.user.email : req.body.email;
+    const typePass = req.body.user ? req.body.user.password : req.body.password;
     console.log(user_email + ',' + typePass)
     User.findOne({ email: user_email }, (err, found) => {
+        console.log(found)
         if (!err && found) {
-            bcrypt.compare(typePass, found.admin_password, (err, result) => {
+            bcrypt.compare(typePass, found.password, (err, result) => {
+                console.log(result)
                 if (!err && result) {
                     const access = jwt.sign(
                         { email: user_email },
