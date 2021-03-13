@@ -1,20 +1,25 @@
 export const initialState = {
+    user: null,
     receiver: null,
-    user: null
+    room: null
 };
 
 export const reducer = (state, action) => {
     switch (action.type) {
         case "SET_CHAT_RECEIVER": {
             return {
-                ...state,
                 receiver: action.receiver,
+            };
+        }
+
+        case "SET_ROOM": {
+            return {
+                room: action.room,
             };
         }
 
         case "SET_USER": {
             return {
-                ...state,
                 user: action.user,
             };
         }

@@ -147,6 +147,7 @@ const messageSchema = new mongoose.Schema({
     fromEmail: String,
     toEmail: String,
     time: String,
+    roomId: String
 })
 const Message = new mongoose.model("Message", messageSchema)
 
@@ -178,9 +179,16 @@ app.post('/newroom', auth, (req, res) => {
                     roomName: req.body.roomName
                 }, (err, room) => {
                     if (!err && room) {
-                        room.roomMembers.push(res.locals.user.email)
-                        room.save()
-                        res.send("Created Room")
+                        User.findOne({ email: res.locals.user.email }, (err, foundUser) => {
+                            if (!err && foundUser) {
+                                room.roomMembers.push(foundUser._id)
+                                room.save()
+                                Room.find({}, (err, found) => {
+                                    res.send(found)
+                                })
+
+                            }
+                        })
                     }
                 })
             } else {
@@ -190,7 +198,7 @@ app.post('/newroom', auth, (req, res) => {
     })
 })
 
-app.post('/roomList', (req, res) => {
+app.get('/roomList', (req, res) => {
     Room.find({}, (err, found) => {
         res.send(found)
     })
@@ -223,9 +231,9 @@ app.post('/roomMessages', (req, res) => {
     Room.findOne({ roomName: req.body.roomName })
         .populate('roomMembers')
         .populate('roomMessages')
-        .exec(function (err, story) {
+        .exec(function (err, messages) {
             if (err) return handleError(err);
-            console.log(story);
+            res.send(messages.roomMessages);
         })
 })
 
@@ -237,7 +245,9 @@ app.post('/roomMessage', auth, (req, res) => {
         fromEmail: res.locals.user.email,
         time: date,
     }, (err, message) => {
-        Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+        Room.findOne({ roomName: req.body.room }, (err, found) => {
+            message.roomId = found._id
+            message.save()
             found.roomMessages.push(message)
             found.save()
         })
