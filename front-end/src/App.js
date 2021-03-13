@@ -8,11 +8,7 @@ import Login from "./components/Login";
 import React, { useState } from 'react'
 import SignUp from "./components/SignUp";
 import Verify from "./components/Verify";
-<<<<<<< HEAD
-import Profile from "./components/Profile"
-=======
 import Form from "./components/Form";
->>>>>>> 4e44805c69617c0b8a3c776b762bed41521722bc
 
 function App() {
   const [path, setPath] = useState(window.location.pathname)
