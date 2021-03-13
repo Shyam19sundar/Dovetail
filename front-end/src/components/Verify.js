@@ -33,7 +33,7 @@ function Verify() {
             .then((res) =>
                 res.status == 200 ? history.push("/form") : console.log("")
             ).catch(err => {
-                if (err.message === 'Request failed with status code 401')
+                if (err.response.status === 401)
                     notify('Incorrect OTP')
             })
     };
