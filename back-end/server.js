@@ -185,14 +185,14 @@ app.post("/login", (req, res) => {
                     });
                 } else {
                     return res.status(401).json({
-                        message: "You are unauthorized ",
+                        message: "Incorrect password. Try again!",
                     });
                 }
             });
         }
         else {
             return res.status(401).json({
-                message: 'You are unauthorized'
+                message: 'User email not found. Please sign-up'
             })
         }
     });
