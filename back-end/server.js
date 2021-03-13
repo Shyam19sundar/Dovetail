@@ -71,10 +71,11 @@ const auth = async (req, res, next) => {
             message: "Access Token required",
         });
     accessToken = accessToken.split(" ")[1];
-    console.log(accessToken);
+    // console.log(accessToken);
     jwt.verify(accessToken, "AccessGiven", async (err, user) => {
         if (user) {
-            req.user = user;
+            console.log(user)
+            res.locals.user = user;
             next();
         } else if (err.message === "jwt expired") {
             return res.status(498).json({
@@ -123,7 +124,8 @@ const User = new mongoose.model("User", userSchema)
 
 const messageSchema = new mongoose.Schema({
     message: String,
-    email: String,
+    fromEmail: String,
+    toEmail: String,
     time: String,
     received: Boolean
 })
@@ -162,10 +164,13 @@ app.post('/newroom', (req, res) => {
     })
 })
 
-app.get('/directMessage', auth, (req, res) => {
-    console.log(req)
-    console.log(req.user)
-    console.log("kkk" + req.query.receiver)
+app.post('/directMessage', auth, (req, res) => {
+    console.log("kkk" + req.body.receiver)
+    console.log(res.locals.user)
+    Message.find({ fromEmail: res.locals.user, toEmail: req.body.receiver }, (err, found) => {
+        if (!err && found.length !== 0)
+            res.send(found)
+    })
 })
 
 app.post('/roomMessages', (req, res) => {
@@ -274,6 +279,7 @@ app.post("/otp-verify", (req, res) => {
 app.post("/signup", (req, res) => {
     const email = req.body.user.email;
     const pass = req.body.user.password;
+    console.log(email + ',' + pass)
     if (email && pass) {
         bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(pass, salt, function (err, hash) {
@@ -292,7 +298,7 @@ app.post("/signup", (req, res) => {
 app.post("/login", (req, res) => {
     const user_email = req.body.user ? req.body.user.email : req.body.email;
     const typePass = req.body.user ? req.body.user.password : req.body.password;
-    console.log(user_email + ',' + typePass)
+    console.log(user_email + ',,' + typePass)
     User.findOne({ email: user_email }, (err, found) => {
         console.log(found)
         if (!err && found) {
@@ -336,7 +342,7 @@ app.post("/refresh", (req, res) => {
         });
     jwt.verify(refreshToken, "TokenIssued", (err, user) => {
         if (!err) {
-            const accessToken = jwt.sign({ user: user.user }, "AccessGiven", {
+            const accessToken = jwt.sign({ email: user.email }, "AccessGiven", {
                 expiresIn: "11s",
             });
             return res.status(200).json({

@@ -4,36 +4,17 @@ import '../css/ChatMessages.css'
 import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
 import axios from '../axios';
+import { useStateValue } from '../StateProvider';
 
 function ChatMessages() {
-    const [id, setid] = useState("")
-
-    useEffect(() => {
-        setid(window.location.search.split('?')[1])
-        accessProtected()
-    }, [window.location.search])
-
-
-    const accessProtected = async () => {
-        let accessToken = Cookies.get("access");
-        let refreshToken = Cookies.get("refresh");
-        const access = await hasAccess(accessToken, refreshToken);
-        if (!access) {
-            console.log("You are not authorized");
-        } else {
-            await requestLogin(access, refreshToken);
-        }
-    };
+    const [{ receiver_id }, dispatch] = useStateValue()
 
     const requestLogin = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
             axios
-                .get(
+                .post(
                     "/directMessage",
-                    {
-                        params:
-                            { receiver: id }
-                    },
+                    { receiver: receiver_id },
                     {
                         headers: {
                             authorization: `Bearer ${access}`,
@@ -58,6 +39,22 @@ function ChatMessages() {
                 );
         });
     };
+
+    const accessProtected = async () => {
+        let accessToken = Cookies.get("access");
+        let refreshToken = Cookies.get("refresh");
+        const access = await hasAccess(accessToken, refreshToken);
+        if (!access) {
+            console.log("You are not authorized");
+        } else {
+            await requestLogin(access, refreshToken);
+        }
+    };
+
+    useEffect(() => {
+        if (receiver_id)
+            accessProtected()
+    }, [receiver_id])
 
     const handleSubmit = () => {
         axios.post('/addMessage')
