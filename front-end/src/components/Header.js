@@ -1,24 +1,29 @@
-import React from 'react'
+import React, { useState } from 'react'
 import '../css/Header.css'
 import $ from 'jquery'
 
 function Header() {
-    const handleClick = () => {
-        $('.header-signin').click(() => {
-            $('.switch input').prop('checked', true)
-        })
+    const [signedin, setSignedin] = useState(false)
+
+    const handleSignedin = () => {
+        setSignedin(true)
+        $('.switch input').prop('checked', true)
+    }
+    const handleAnonymous = () => {
+        setSignedin(false)
+        $('.switch input').prop('checked', false)
     }
 
     return (
         <div className='header'>
             <h1>DOVETAIL</h1>
             <div>
-                <p>Anonymous</p>
+                <button onClick={handleAnonymous}>Anonymous</button>
                 <label className="switch">
                     <input type="checkbox" />
                     <span className="slider round"></span>
                 </label>
-                <p className='header-signin' onClick={handleClick}>Sign-In</p>
+                <button className='header-signin' onClick={handleSignedin}>Sign-In</button>
             </div>
 
         </div >
