@@ -34,18 +34,7 @@ function ChatList() {
                 <input type='text' placeholder='Search' onChange={(e) => handleChange(e)} />
                 <SearchIcon id='searchIcon' />
             </div>
-            {
-                searches?.map(search => (
-                    <div onClick={() => handleClick(search)} className='chatList-searchList'>
-                        <img src='../images/male.png' />
-                        <div>
-                            <h4>{search.name}</h4>
-                            <p>Hello! Good Morning</p>
-                        </div>
-                    </div>
-                ))
-            }
-            {
+          {
                 list?.map(single => (
                     <div onClick={() => handleClick(single)} className='chatList-searchList'>
                         <img src='../images/male.png' />

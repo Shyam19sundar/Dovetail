@@ -10,6 +10,7 @@ import React, { useState } from 'react'
 import SignUp from "./components/SignUp";
 import Verify from "./components/Verify";
 import Form from "./components/Form";
+import VideoCall from "./components/Video"
 import Room from "./components/Room";
 import Profile from "./components/Profile";
 import axios from "./axios";
@@ -98,6 +99,10 @@ function App() {
               <Route path='/profile' exact>
                 <Profile />
               </Route>
+              <Route path='/video' exact>
+                <VideoCall />
+              </Route>
+
               <Route path='/' >
                 <Home setPath={setPath} />
               </Route>
