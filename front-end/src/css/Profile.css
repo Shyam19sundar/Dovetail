@@ -1,0 +1,54 @@
+ .profile{
+    width: 100vw;
+    height:100vh;   }
+    
+
+.profile_image{
+border: 1ps solid white;
+position: absolute;
+left:40%;
+top: 80px;
+z-index: -1;
+}
+
+.profile_icon{
+  
+    position: relative;
+    left:50%;
+    top:210px;
+    z-index: 1;
+    border: 1px solid white;
+    background-color: wheat;
+    border-radius: 25px;
+ 
+  
+}
+
+
+.profile-info,.profile-interest,.profile-work{
+      
+       display: flex;
+  }
+  .profile-interest{
+      margin-top: 35px;
+  }
+  .profile-list{
+  
+       display: flex;  
+    }
+    .profile-list p{
+        
+        margin: 10px;
+        border: 1px solid black;
+        width: 100px;
+        margin-left:10px ;
+        text-align: center;
+    }
+.profile_details{
+    position: relative;
+    top:250px;
+    left: 40%;
+    width: 20%;
+}
+
+
