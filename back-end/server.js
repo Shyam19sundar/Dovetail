@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require('http');
+const socketio = require('socket.io');
 const mongoose = require("mongoose");
 const app = express();
 const nodemailer = require("nodemailer");
@@ -7,16 +9,85 @@ const jwt = require('jsonwebtoken')
 require("dotenv").config();
 const cors = require("cors");
 app.use(express.json());
-app.set("port", 3001);
+app.set("port", 5000);
+const server = http.createServer(app);
+options = {
+    cors: true,
+    origins: ["http://127.0.0.1:3000"],
+};
+const io = socketio(server, options);
+// const router = require('./router');
+// app.use(router);
 
 app.use(
-    cors({
-        origin: "http://localhost:3000",
-        credentials: true,
-    })
+    cors(
+        {
+            origin: "http://localhost:3000",
+            credentials: true,
+        }
+    )
 );
 
-mongoose.connect("mongodb://localhost:27017/DovetailDB", {
+io.on('connect', (socket) => {
+    // console.log("Connected")
+
+    // socket.on('join', ({ roomName }, callback) => {
+    //     const { error, user } = addUser({ id: socket.id, roomName });
+    //     console.log(roomName)
+    //     console.log(socket.id)
+    // if (error) return callback(error);
+
+    // socket.join(user.room);
+
+    // socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.` });
+    // socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
+
+    // io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+
+    //     callback();
+    // });
+
+    // socket.on('sendMessage', (message, callback) => {
+    //     const user = getUser(socket.id);
+
+    //     io.to(user.room).emit('message', { user: user.name, text: message });
+
+    //     callback();
+    // });
+
+    // socket.on('disconnect', () => {
+    //     const user = removeUser(socket.id);
+
+    //     if (user) {
+    //         io.to(user.room).emit('message', { user: 'Admin', text: `${user.name} has left.` });
+    //         io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+    //     }
+    // })
+});
+const auth = async (req, res, next) => {
+    var accessToken = req.headers["authorization"];
+    if (!accessToken)
+        return res.status(499).json({
+            message: "Access Token required",
+        });
+    accessToken = accessToken.split(" ")[1];
+    console.log(accessToken);
+    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
+        if (user) {
+            req.user = user;
+            next();
+        } else if (err.message === "jwt expired") {
+            return res.status(498).json({
+                message: "Access Token expired",
+            });
+        } else
+            return res.status(401).json({
+                message: "User not authorized",
+            });
+    });
+};
+
+mongoose.connect("mongodb+srv://admin-Dovetail:dovetail2sm@cluster0.nxnwd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -42,9 +113,28 @@ const Verify = new mongoose.model("Verify", verifySchema);
 
 const userSchema = new mongoose.Schema({
     email: String,
-    password: String
+    password: String,
+    name: String,
+    dp: String,
+    interests: [],
+    works: []
 })
 const User = new mongoose.model("User", userSchema)
+
+const messageSchema = new mongoose.Schema({
+    message: String,
+    email: String,
+    time: String,
+    received: Boolean
+})
+const Message = new mongoose.model("Message", messageSchema)
+
+const roomSchema = new mongoose.Schema({
+    roomName: String,
+    roomMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    roomMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
+})
+const Room = new mongoose.model('Room', roomSchema)
 
 app.get("/", (req, res) => {
     try {
@@ -53,6 +143,46 @@ app.get("/", (req, res) => {
     catch (e) {
         console.log("error in /")
     }
+})
+
+app.post('/newroom', (req, res) => {
+    Room.find({ roomName: req.body.roomName }, (err, found) => {
+        if (!err) {
+            if (found.length === 0) {
+                Room.create({
+                    roomName: req.body.roomName
+                }, (err, room) => {
+                    if (!err && room)
+                        res.send("Created Room")
+                })
+            } else {
+                res.send("Already Exists")
+            }
+        }
+    })
+})
+
+app.get('/directMessage', auth, (req, res) => {
+    console.log(req)
+    console.log(req.user)
+    console.log("kkk" + req.query.receiver)
+})
+
+app.post('/roomMessages', (req, res) => {
+    console.log(req.body)
+    Room.findOne({ roomName: req.body.roomName })
+        .populate('roomMembers')
+        .populate('roomMessages')
+        .exec(function (err, story) {
+            if (err) return handleError(err);
+            console.log(story);
+        })
+})
+
+app.get('/allMembers', (req, res) => {
+    User.find({}, (err, found) => {
+        res.send(found)
+    })
 })
 
 function randomString(length, chars) {
@@ -224,34 +354,11 @@ app.post("/refresh", (req, res) => {
     });
 });
 
-const auth = async (req, res, next) => {
-    var accessToken = req.headers["authorization"];
-    if (!accessToken)
-        return res.status(499).json({
-            message: "Access Token required",
-        });
-    accessToken = accessToken.split(" ")[1];
-    console.log(accessToken);
-    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
-        if (user) {
-            req.user = user;
-            next();
-        } else if (err.message === "jwt expired") {
-            return res.status(498).json({
-                message: "Access Token expired",
-            });
-        } else
-            return res.status(401).json({
-                message: "User not authorized",
-            });
-    });
-};
-
 app.post("/protected", auth, (req, res) => {
     return res.status(200).json({ message: "Protected content accessed" });
 });
 
 
-app.listen(app.get("port"), function () {
+server.listen(app.get("port"), function () {
     console.log(`App started on port ${app.get("port")}`)
 })

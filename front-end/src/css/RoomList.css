@@ -1,0 +1,7 @@
+.room-list{
+    flex: 0.3;
+}
+
+.add-room-form{
+    display: none;
+}
