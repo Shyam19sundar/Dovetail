@@ -11,11 +11,13 @@ const cors = require("cors");
 app.use(express.json());
 app.set("port", 5000);
 const server = http.createServer(app);
-const io = socketio(server);
+options = {
+    cors: true,
+    origins: ["http://127.0.0.1:3000"],
+};
+const io = socketio(server, options);
 // const router = require('./router');
 // app.use(router);
-
-const { addUser, removeUser, getUser, getUsersInRoom } = require('./users');
 
 app.use(
     cors(
@@ -27,23 +29,23 @@ app.use(
 );
 
 io.on('connect', (socket) => {
-    console.log("Connected")
+    // console.log("Connected")
 
-    socket.on('join', ({ roomName }, callback) => {
-        // const { error, user } = addUser({ id: socket.id, roomName });
-        console.log(roomName)
-        console.log(socket.id)
-        // if (error) return callback(error);
+    // socket.on('join', ({ roomName }, callback) => {
+    //     const { error, user } = addUser({ id: socket.id, roomName });
+    //     console.log(roomName)
+    //     console.log(socket.id)
+    // if (error) return callback(error);
 
-        // socket.join(user.room);
+    // socket.join(user.room);
 
-        // socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.` });
-        // socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
+    // socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.` });
+    // socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
 
-        // io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
+    // io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
 
-        callback();
-    });
+    //     callback();
+    // });
 
     // socket.on('sendMessage', (message, callback) => {
     //     const user = getUser(socket.id);
@@ -63,7 +65,7 @@ io.on('connect', (socket) => {
     // })
 });
 
-mongoose.connect("mongodb://localhost:27017/DovetailDB", {
+mongoose.connect("mongodb+srv://admin-Dovetail:dovetail2sm@cluster0.nxnwd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -87,17 +89,26 @@ const verifySchema = new mongoose.Schema({
 });
 const Verify = new mongoose.model("Verify", verifySchema);
 
-const roomSchema = new mongoose.Schema({
-    roomName: String,
-    roomMembers: []
-})
-const Room = new mongoose.model('Room', roomSchema)
-
 const userSchema = new mongoose.Schema({
     email: String,
     password: String
 })
 const User = new mongoose.model("User", userSchema)
+
+const messageSchema = new mongoose.Schema({
+    message: String,
+    email: String,
+    time: String,
+    received: Boolean
+})
+const Message = new mongoose.model("Message", messageSchema)
+
+const roomSchema = new mongoose.Schema({
+    roomName: String,
+    roomMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    roomMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
+})
+const Room = new mongoose.model('Room', roomSchema)
 
 app.get("/", (req, res) => {
     try {
@@ -109,7 +120,6 @@ app.get("/", (req, res) => {
 })
 
 app.post('/newroom', (req, res) => {
-    console.log(req.body)
     Room.find({ roomName: req.body.roomName }, (err, found) => {
         if (!err) {
             if (found.length === 0) {
@@ -122,6 +132,15 @@ app.post('/newroom', (req, res) => {
             } else {
                 res.send("Already Exists")
             }
+        }
+    })
+})
+
+app.post('/roomMessages', (req, res) => {
+    console.log(req.body)
+    Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+        if (!err && found) {
+            res.send(found)
         }
     })
 })

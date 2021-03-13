@@ -26,19 +26,15 @@ function RoomList() {
     }
     useEffect(() => {
         socket = io(ENDPOINT);
-
-        if (roomResponse === "Created Room") {
-            console.log("DDDDD")
-            socket.emit('join', { roomName }, (error) => {
-                if (error) {
-                    alert(error);
-                }
-            });
-            history.push(`/room/?${roomName}`);
-        } else {
-            console.log("BYE")
+        if (!(window.location.search.includes('&'))) {
+            if (roomResponse === "Created Room") {
+                setroomResponse(null)
+                history.push(`/rooms?${roomName}`);
+            } else if (roomResponse === "Already Exists") {
+                alert("Room Already Exists")
+            }
         }
-    }, [ENDPOINT, roomResponse])
+    }, [ENDPOINT, window.location.search, roomResponse])
     return (
         <div className="room-list">
             <button onClick={handleClick}>Create Room</button>
