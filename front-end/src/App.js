@@ -9,15 +9,14 @@ import Login from "./components/Login";
 import React, { useState } from 'react'
 import SignUp from "./components/SignUp";
 import Verify from "./components/Verify";
-import Videocall from "./components/Video"
 import Form from "./components/Form";
+import VideoCall from "./components/Video"
 import Room from "./components/Room";
 import Profile from "./components/Profile";
 import axios from "./axios";
 import { hasAccess, refresh } from './components/Access.js'
 import Cookies from 'js-cookie'
 import { useStateValue } from "./StateProvider";
-import VideoCall from "./components/Video";
 
 function App() {
   const [path, setPath] = useState(window.location.pathname)
@@ -100,15 +99,12 @@ function App() {
               <Route path='/profile' exact>
                 <Profile />
               </Route>
-
-              <Route path='/video'>
+              <Route path='/video' exact>
                 <VideoCall />
               </Route>
-              <Route path='/' exact>
-                <Home />
+
               <Route path='/' >
                 <Home setPath={setPath} />
-       
               </Route>
             </Switch>
           </div>
