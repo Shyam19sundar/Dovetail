@@ -5,6 +5,9 @@ import io from "socket.io-client";
 import axios from '../axios'
 import { useHistory, withRouter } from "react-router-dom";
 import SearchIcon from '@material-ui/icons/Search';
+import Cookies from 'js-cookie'
+import { hasAccess, refresh } from './Access.js'
+import { useStateValue } from '../StateProvider';
 
 const ENDPOINT = 'http://localhost:5000';
 
@@ -12,31 +15,73 @@ let socket;
 
 function RoomList() {
     const history = useHistory();
-
+    const [response, setResponse] = useState([])
+    const [{ room }, dispatch] = useStateValue()
     const [roomName, setroomName] = useState("")
     const [roomResponse, setroomResponse] = useState(null)
 
     const handleClick = () => {
         $('.add-room-form').toggle({ display: 'flex' })
     }
+    const addNewRoom = async (access, refreshToken) => {
+        return new Promise((resolve, reject) => {
+            axios
+                .post(
+                    '/newroom', {
+                    roomName: roomName
+                },
+                    {
+                        headers: {
+                            authorization: `Bearer ${access}`,
+                        },
+                    }
+                )
+                .then(
+                    (response) => {
+                        console.log(response.data)
+                        setResponse(response.data);
+                        resolve(true);
+                    },
+                    async (error) => {
+                        if (error.response.status === 401)
+                            console.log("You are not authorized!");
+                        else if (error.response.status === 498) {
+                            const access = await refresh(refreshToken);
+                            return await addNewRoom(access, refreshToken);
+                        }
+                        resolve(false);
+                    }
+                );
+        });
+    };
+
+
+    const accessAddRoom = async () => {
+        let accessToken = Cookies.get("access");
+        let refreshToken = Cookies.get("refresh");
+        const access = await hasAccess(accessToken, refreshToken);
+        if (!access) {
+            console.log("You are not authorized");
+        } else {
+            await addNewRoom(access, refreshToken);
+        }
+    };
 
     const addRoom = (e) => {
         e.preventDefault()
-        axios.post('/newroom', {
-            roomName: roomName
-        }).then(res => setroomResponse(res.data))
+        accessAddRoom()
     }
     useEffect(() => {
-        socket = io(ENDPOINT);
-        if (!(window.location.search.includes('&'))) {
-            if (roomResponse === "Created Room") {
-                setroomResponse(null)
-                history.push(`/rooms?${roomName}`);
-            } else if (roomResponse === "Already Exists") {
-                alert("Room Already Exists")
-            }
-        }
-    }, [ENDPOINT, window.location.search, roomResponse])
+        // socket = io(ENDPOINT);
+        axios.get('/roomList').then(res => setResponse(res.data))
+    }, [ENDPOINT])
+
+    const handleRoom = (room) => {
+        dispatch({
+            type: 'SET_ROOM',
+            room: room
+        })
+    }
     return (
         <div className="room-list">
             <div className='add-room-container'>
@@ -54,39 +99,20 @@ function RoomList() {
                 <input type='text' placeholder='Search' />
                 <SearchIcon id='searchIcon' />
             </div>
-            {
-                // searches?.map(search => (
-                //     <div className='chatList-searchList'>
-                //         <img src='../images/male.png' />
-                //         <div>
-                //             {/* <h4>{search.name}</h4> */}
-                //             <p>Hello! Good Morning</p>
-                //         </div>
-                //     </div>
-                // ))
-            }
+            <div className='chatList-scroll'>
+                {
+                    response?.map(room => (
+                        <div onClick={() => handleRoom(room)} className='chatList-searchList'>
+                            <img src='../images/male.png' />
+                            <div>
+                                <h4>{room.roomName}</h4>
+                            </div>
+                        </div>
+                    ))
+                }
+            </div>
 
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
+
         </div>
     )
 }

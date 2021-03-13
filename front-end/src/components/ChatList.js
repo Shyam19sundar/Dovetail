@@ -10,9 +10,14 @@ function ChatList() {
     const [{ receiver_id }, dispatch] = useStateValue()
 
     const [members, setmembers] = useState([])
+    const [list, setList] = useState([])
     const [searches, setsearches] = useState([])
     useEffect(() => {
-        axios.get('/allMembers').then(res => setmembers(res.data))
+        axios.get('/allMembers').then(res => {
+            setList(res.data)
+            setmembers(res.data)
+        }
+        )
     }, [])
     const handleChange = (e) => {
         setsearches(members?.filter(member => member.name.includes(e.target.value)))
@@ -40,28 +45,28 @@ function ChatList() {
                     </div>
                 ))
             }
-
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
-            <div className='chatList-contact'>
-                <img src='../images/male.png' />
-                <div>
-                    <h4>Name</h4>
-                    <p>Hello! Good Morning</p>
-                </div>
-            </div>
+            {
+                list?.map(single => (
+                    <div onClick={() => handleClick(single)} className='chatList-searchList'>
+                        <img src='../images/male.png' />
+                        <div>
+                            <h4>{single.name}</h4>
+                            <p>Hello! Good Morning</p>
+                        </div>
+                    </div>
+                ))
+            }
+            {
+                searches?.map(search => (
+                    <div onClick={() => handleClick(search)} className='chatList-searchList'>
+                        <img src='../images/male.png' />
+                        <div>
+                            <h4>{search.name}</h4>
+                            <p>Hello! Good Morning</p>
+                        </div>
+                    </div>
+                ))
+            }
         </div>
     )
 }

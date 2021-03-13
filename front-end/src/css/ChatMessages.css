@@ -1,5 +1,4 @@
 .chatMessages {
-    overflow-y: scroll;
     flex: 0.7;
     display: flex;
     flex-direction: column;

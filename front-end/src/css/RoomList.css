@@ -1,11 +1,11 @@
 .room-list {
+    height: 90vh;
     flex: 0.3;
     border-right: 1px solid #180022;
 }
 
 .add-room-form{
     display: none;
-    /* display: flex; */
 }
 .add-room-container {
     display: flex;
@@ -36,4 +36,12 @@
     background-color: #34004a;
     color: aliceblue;
     cursor: pointer;
+}
+.chatList-searchList {
+    color: #180022;
+    border-bottom: 1px solid #34004a;
+}
+.chatList-scroll {
+    height: 85%;
+    overflow-y: scroll;
 }

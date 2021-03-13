@@ -1,9 +1,7 @@
 .chatList {
     flex: 0.3;
     max-height: 100%;
-    overflow-y: scroll;
-    background-color: #b19cd9;
-    background-color: #a020f0;
+    border-right: 1px solid #180022;
     color: aliceblue;
 }
 .chatList-search {
@@ -40,8 +38,9 @@
     padding-bottom: 10px;
     border-bottom: 1px solid white;
 }
-.chatList-searchList {
-    color: red;
+.chatList-searchList > div {
+    color: #180022;
+    border-bottom: 1px solid #34004a;
 }
 .chatList-searchList > img {
     padding-right: 20px;
