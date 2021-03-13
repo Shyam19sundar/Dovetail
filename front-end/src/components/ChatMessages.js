@@ -15,6 +15,7 @@ function ChatMessages() {
     const [{ receiver, user }, dispatch] = useStateValue()
     const [response, setresponse] = useState(null)
     const [message, setmessage] = useState("")
+    console.log(user)
 
     const directMessage = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
@@ -108,8 +109,9 @@ function ChatMessages() {
         socket.on('users', (data) => {
             var arr = []
             data.map(message => {
-                if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
-                    arr.push(message)
+                if (user && receiver && receiver?.email)
+                    if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
+                        arr.push(message)
             })
             setresponse(arr)
         })
@@ -120,7 +122,7 @@ function ChatMessages() {
         if (receiver)
             accessAdd()
     }
-    console.log(response)
+    console.log(receiver)
     return (
         <div className='chatMessages'>
             <div className='chatMessages-header'>
