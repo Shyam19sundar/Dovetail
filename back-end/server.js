@@ -1,4 +1,6 @@
 const express = require("express");
+const http = require('http');
+const socketio = require('socket.io');
 const mongoose = require("mongoose");
 const app = express();
 const nodemailer = require("nodemailer");
@@ -7,16 +9,72 @@ const jwt = require('jsonwebtoken')
 require("dotenv").config();
 const cors = require("cors");
 app.use(express.json());
-app.set("port", 3001);
+app.set("port", 5000);
+const server = http.createServer(app);
+options = {
+    cors: true,
+    origins: ["http://127.0.0.1:3000"],
+};
+const io = socketio(server, options);
+// const router = require('./router');
+// app.use(router);
 
 app.use(
-    cors({
-        origin: "http://localhost:3000",
-        credentials: true,
-    })
+    cors(
+        {
+            origin: "http://localhost:3000",
+            credentials: true,
+        }
+    )
 );
 
-mongoose.connect("mongodb://localhost:27017/DovetailDB", {
+io.on('connect', (socket) => {
+    console.log("Connected")
+
+    const changeStream = Message.watch();
+    changeStream.on("change", function (change) {
+        console.log("User COLLECTION CHANGED");
+        Message.find({}, (err, data) => {
+            if (err) throw err;
+            if (data) {
+                // RESEND ALL USERS
+                socket.emit("users", data);
+            }
+        });
+    });
+
+    // socket.on('join', ({ roomName }, callback) => {
+    //     const { error, user } = addUser({ id: socket.id, roomName });
+    //     console.log(roomName)
+    //     console.log(socket.id)
+    // if (error) return callback(error);
+
+    // socket.join(user.room);
+
+});
+const auth = async (req, res, next) => {
+    var accessToken = req.headers["authorization"];
+    if (!accessToken)
+        return res.status(499).json({
+            message: "Access Token required",
+        });
+    accessToken = accessToken.split(" ")[1];
+    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
+        if (user) {
+            res.locals.user = user;
+            next();
+        } else if (err.message === "jwt expired") {
+            return res.status(498).json({
+                message: "Access Token expired",
+            });
+        } else
+            return res.status(401).json({
+                message: "User not authorized",
+            });
+    });
+};
+
+mongoose.connect("mongodb+srv://admin-Dovetail:dovetail2sm@cluster0.nxnwd.mongodb.net/myFirstDatabase?retryWrites=true&w=majority", {
     useNewUrlParser: true,
     useUnifiedTopology: true,
 });
@@ -42,9 +100,28 @@ const Verify = new mongoose.model("Verify", verifySchema);
 
 const userSchema = new mongoose.Schema({
     email: String,
-    password: String
+    password: String,
+    name: String,
+    dp: String,
+    interests: [],
+    works: []
 })
 const User = new mongoose.model("User", userSchema)
+
+const messageSchema = new mongoose.Schema({
+    message: String,
+    fromEmail: String,
+    toEmail: String,
+    time: String,
+})
+const Message = new mongoose.model("Message", messageSchema)
+
+const roomSchema = new mongoose.Schema({
+    roomName: String,
+    roomMembers: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    roomMessages: [{ type: mongoose.Schema.Types.ObjectId, ref: "Message" }],
+})
+const Room = new mongoose.model('Room', roomSchema)
 
 app.get("/", (req, res) => {
     try {
@@ -53,6 +130,67 @@ app.get("/", (req, res) => {
     catch (e) {
         console.log("error in /")
     }
+})
+
+app.post('/getMe', auth, (req, res) => {
+    res.send(res.locals.user.email)
+})
+
+app.post('/newroom', (req, res) => {
+    Room.find({ roomName: req.body.roomName }, (err, found) => {
+        if (!err) {
+            if (found.length === 0) {
+                Room.create({
+                    roomName: req.body.roomName
+                }, (err, room) => {
+                    if (!err && room)
+                        res.send("Created Room")
+                })
+            } else {
+                res.send("Already Exists")
+            }
+        }
+    })
+})
+
+app.post('/directMessage', auth, (req, res) => {
+    Message.find({ fromEmail: res.locals.user.email, toEmail: req.body.receiver }, (err, found) => {
+        if (!err && found.length !== 0) {
+            res.send(found)
+        }
+    })
+    Message.find({ toEmail: res.locals.user.email, fromEmail: req.body.receiver }, (err, found) => {
+        if (!err && found.length !== 0) {
+            res.send(found)
+        }
+    })
+})
+
+app.post('/roomMessages', (req, res) => {
+    Room.findOne({ roomName: req.body.roomName })
+        .populate('roomMembers')
+        .populate('roomMessages')
+        .exec(function (err, story) {
+            if (err) return handleError(err);
+            console.log(story);
+        })
+})
+
+app.get('/allMembers', (req, res) => {
+    User.find({}, (err, found) => {
+        res.send(found)
+    })
+})
+
+app.post('/addMessage', auth, (req, res) => {
+    var d = new Date();
+    var date = d.toLocaleString()
+    Message.create({
+        message: req.body.message,
+        fromEmail: res.locals.user.email,
+        toEmail: req.body.toEmail,
+        time: date,
+    })
 })
 
 function randomString(length, chars) {
@@ -162,7 +300,7 @@ app.post("/signup", (req, res) => {
 app.post("/login", (req, res) => {
     const user_email = req.body.user ? req.body.user.email : req.body.email;
     const typePass = req.body.user ? req.body.user.password : req.body.password;
-    console.log(user_email + ',' + typePass)
+    console.log(user_email + ',,' + typePass)
     User.findOne({ email: user_email }, (err, found) => {
         console.log(found)
         if (!err && found) {
@@ -172,7 +310,7 @@ app.post("/login", (req, res) => {
                     const access = jwt.sign(
                         { email: user_email },
                         "AccessGiven",
-                        { expiresIn: "10s" }
+                        { expiresIn: "900s" }
                     );
                     const refresh = jwt.sign(
                         { email: user_email },
@@ -206,7 +344,7 @@ app.post("/refresh", (req, res) => {
         });
     jwt.verify(refreshToken, "TokenIssued", (err, user) => {
         if (!err) {
-            const accessToken = jwt.sign({ user: user.user }, "AccessGiven", {
+            const accessToken = jwt.sign({ email: user.email }, "AccessGiven", {
                 expiresIn: "11s",
             });
             return res.status(200).json({
@@ -224,34 +362,6 @@ app.post("/refresh", (req, res) => {
     });
 });
 
-const auth = async (req, res, next) => {
-    var accessToken = req.headers["authorization"];
-    if (!accessToken)
-        return res.status(499).json({
-            message: "Access Token required",
-        });
-    accessToken = accessToken.split(" ")[1];
-    console.log(accessToken);
-    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
-        if (user) {
-            req.user = user;
-            next();
-        } else if (err.message === "jwt expired") {
-            return res.status(498).json({
-                message: "Access Token expired",
-            });
-        } else
-            return res.status(401).json({
-                message: "User not authorized",
-            });
-    });
-};
-
-app.post("/protected", auth, (req, res) => {
-    return res.status(200).json({ message: "Protected content accessed" });
-});
-
-
-app.listen(app.get("port"), function () {
+server.listen(app.get("port"), function () {
     console.log(`App started on port ${app.get("port")}`)
 })

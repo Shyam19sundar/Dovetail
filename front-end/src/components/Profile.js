@@ -8,7 +8,7 @@ function Profile() {
 
 
     $("#add1").click(function () {
-        $("#list").append(" <b>mani</b>.");
+        $("#list").append(" <b>add</b>.");
     });
 
     return (
