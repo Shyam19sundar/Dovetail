@@ -27,6 +27,9 @@
     width: 0;
     height: 0;
 }
+.header div {
+    cursor: pointer;
+}
   
 .slider {
     position: absolute;
@@ -72,4 +75,10 @@ input:checked + .slider:before {
   
 .slider.round:before {
     border-radius: 50%;
+}
+.header button {
+    height: 30px;
+    border-radius: 10px;
+    outline: none;
+    background-color: aliceblue;
 }

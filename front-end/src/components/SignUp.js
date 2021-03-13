@@ -1,34 +1,43 @@
 import React, { useState } from 'react'
+import { useHistory } from 'react-router'
 import axios from '../axios'
+import '../css/Signup.css'
+import $ from 'jquery'
 
 function SignUp() {
-    const [email, setemail] = useState("")
+    const [email, setEmail] = useState("")
+    const history = useHistory()
     const handleSubmit = () => {
-        if (typeof Storage !== "undefined") {
-            // Store
-            sessionStorage.setItem("email", email);
+        if ($('#signup-email').val() !== ('' && undefined)) {
+            if (typeof Storage !== "undefined") {
+                // Store
+                sessionStorage.setItem("email", email);
+            }
+            axios.post("/verify", {
+                email: email,
+            }).then(
+                res => {
+                    if (res.status === 200)
+                        history.push('/verify')
+                }
+            ).catch(err => console.log(err.message))
+
         }
-        axios.post("/verify", {
-            email: email,
-        });
+        else
+            $("#email-bottom").css({ width: '100%', backgroundColor: 'red' })
     }
     return (
-        <div>
-            <div className="login__body">
-                <div className="container">
-                    <div className="row">
-                        <div className="col-md-9">
-                            <form className="box" onSubmit={handleSubmit}>
-                                <h1>Sign Up</h1>
-                                <p className="text-muted"> Please enter your Email and password!</p>
-                                <input required type="email" onChange={(e) => setemail(e.target.value)} placeholder="Email" />
-                                <a className="forgot text-muted" href="#">Forgot password?</a>
-                                <input type="submit" name="" value="Sign Up" href="#" />
-                            </form>
-                        </div>
-                    </div>
+        <div className="signup">
+            <div className='signup-container'>
+                <h2>Dovetail</h2>
+                <p>Sign up to join us!</p>
+                <div className='signupInput-container'>
+                    <input type='email' placeholder='Email' id='signup-email' onChange={(e) => setEmail(e.target.value)} />
+                    <span id='email-bottom'></span>
                 </div>
+                <button onClick={handleSubmit}>Submit</button>
             </div>
+
         </div>
     )
 }

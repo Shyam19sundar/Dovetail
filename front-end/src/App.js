@@ -5,42 +5,44 @@ import Leftbar from './components/Leftbar';
 import Header from './components/Header';
 import Chat from "./components/Chat";
 import Login from "./components/Login";
-import React, { useState, useEffect } from 'react'
-import $ from "jquery"
+import React, { useState } from 'react'
 import SignUp from "./components/SignUp";
 import Verify from "./components/Verify";
+import Form from "./components/Form";
 
 function App() {
   const [path, setPath] = useState(window.location.pathname)
-  useEffect(() => {
-    if (path === "/login" && path === "/signup")
-      $('.app').hide()
-  }, [])
+
   return (
     <Router>
       <Route path="/login" exact>
-        <Login />
+        <Login setPath={setPath} />
       </Route>
       <Route path="/signup" exact>
         <SignUp />
       </Route>
+      <Route path="/form" exact>
+        <Form setPath={setPath} />
+      </Route>
       <Route path="/verify" exact>
         <Verify />
       </Route>
-      <div className="app">
-        <Header />
-        <div className="app-content">
-          <Leftbar />
-          <Switch>
-            <Route path='/chats' exact>
-              <Chat />
-            </Route>
-            <Route path='/'>
-              <Home />
-            </Route>
-          </Switch>
+      {((path !== "/login") && (path !== "/signup") && (path !== "/form")) ?
+        <div className="app">
+          <Header />
+          <div className="app-content">
+            <Leftbar />
+            <Switch>
+              <Route path='/chats' exact>
+                <Chat />
+              </Route>
+              <Route path='/'>
+                <Home />
+              </Route>
+            </Switch>
+          </div>
         </div>
-      </div>
+        : null}
     </Router>
   );
 }
