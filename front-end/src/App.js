@@ -92,14 +92,14 @@ function App() {
               <Route path='/chats' exact>
                 <Chat />
               </Route>
-              <Route path='/rooms'>
+              <Route path='/rooms' exact>
                 <Room />
               </Route>
-              <Route path='/profile'>
+              <Route path='/profile' exact>
                 <Profile />
               </Route>
-              <Route path='/' exact>
-                <Home />
+              <Route path='/' >
+                <Home setPath={setPath} />
               </Route>
             </Switch>
           </div>

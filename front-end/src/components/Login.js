@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 import { ToastContainer, toast } from 'react-toastify';
 
 function Login({ setPath }) {
+    setPath('/login')
     const history = useHistory()
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")

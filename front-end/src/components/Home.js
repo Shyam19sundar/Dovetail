@@ -3,9 +3,9 @@ import React from 'react'
 import { hasAccess, refresh } from './Access.js'
 import Cookies from 'js-cookie'
 
-function Home() {
+function Home({ setPath }) {
     // axios.post('/protected').then(res => console.log(res).catch(err => console.log(err)))
-
+    setPath('/')
     const accessProtected = async () => {
         let accessToken = Cookies.get("access");
         let refreshToken = Cookies.get("refresh");
@@ -49,7 +49,10 @@ function Home() {
     };
     return (
         <div className='home'>
-            <button onClick={accessProtected}>get</button>
+            <div>
+                <input />
+            </div>
+            <img src='./images/puzzle-pic2.png' />
         </div>
     )
 }
