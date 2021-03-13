@@ -8,6 +8,7 @@ import '../css/Form.css'
 import { useHistory } from "react-router";
 
 function Form({ setPath }) {
+    setPath('/form')
     const history = useHistory()
 
     const email = sessionStorage.getItem("email");
