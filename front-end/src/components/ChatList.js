@@ -20,7 +20,7 @@ function ChatList() {
     const handleClick = (search) => {
         dispatch({
             type: 'SET_CHAT_RECEIVER',
-            receiver_id: search.email
+            receiver: search
         })
     }
     return (

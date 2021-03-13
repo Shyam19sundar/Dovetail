@@ -1,5 +1,6 @@
 export const initialState = {
-    receiver_id: null
+    receiver: null,
+    user: null
 };
 
 export const reducer = (state, action) => {
@@ -7,7 +8,14 @@ export const reducer = (state, action) => {
         case "SET_CHAT_RECEIVER": {
             return {
                 ...state,
-                receiver_id: action.receiver_id,
+                receiver: action.receiver,
+            };
+        }
+
+        case "SET_USER": {
+            return {
+                ...state,
+                user: action.user,
             };
         }
 

@@ -1,5 +1,7 @@
 .chatList {
     flex: 0.3;
+    max-height: 100%;
+    overflow-y: scroll;
     background-color: #b19cd9;
     background-color: #a020f0;
     color: aliceblue;
@@ -24,14 +26,14 @@
     right: 10px;
     color: #a020f0;
 }
-.chatList-contact {
-    display: flex;
-    align-items: center;
-}
+
 .chatList-contact > img {
     width: 80px;
+    padding-right: 20px;
 }
 .chatList-contact , .chatList-searchList{
+    display: flex;
+    align-items: center;
     cursor: pointer;
     width: 70%;
     margin: 15px auto;
@@ -43,7 +45,5 @@
 }
 .chatList-searchList > img {
     padding-right: 20px;
-}
-.chatList-contact > img {
-    padding-right: 20px;
+    width: 80px;
 }

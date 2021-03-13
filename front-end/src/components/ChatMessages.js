@@ -5,16 +5,23 @@ import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
 import axios from '../axios';
 import { useStateValue } from '../StateProvider';
+import io from "socket.io-client";
+
+const ENDPOINT = 'http://localhost:5000';
+
+let socket;
 
 function ChatMessages() {
-    const [{ receiver_id }, dispatch] = useStateValue()
+    const [{ receiver, user }, dispatch] = useStateValue()
+    const [response, setresponse] = useState(null)
+    const [message, setmessage] = useState("")
 
-    const requestLogin = async (access, refreshToken) => {
+    const directMessage = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
             axios
                 .post(
                     "/directMessage",
-                    { receiver: receiver_id },
+                    { receiver: receiver.email },
                     {
                         headers: {
                             authorization: `Bearer ${access}`,
@@ -23,16 +30,15 @@ function ChatMessages() {
                 )
                 .then(
                     (response) => {
-                        console.log(response);
+                        setresponse(response.data);
                         resolve(true);
                     },
                     async (error) => {
                         if (error.response.status === 401)
                             console.log("You are not authorized!");
                         else if (error.response.status === 498) {
-                            console.log("hello");
                             const access = await refresh(refreshToken);
-                            return await requestLogin(access, refreshToken);
+                            return await directMessage(access, refreshToken);
                         }
                         resolve(false);
                     }
@@ -40,46 +46,99 @@ function ChatMessages() {
         });
     };
 
-    const accessProtected = async () => {
+    const addMessage = async (access, refreshToken) => {
+        return new Promise((resolve, reject) => {
+            axios
+                .post(
+                    "/addMessage",
+                    {
+                        toEmail: receiver.email,
+                        message: message
+                    },
+                    {
+                        headers: {
+                            authorization: `Bearer ${access}`,
+                        },
+                    }
+                )
+                .then(
+                    (response) => {
+                        setresponse(response.data);
+                        resolve(true);
+                    },
+                    async (error) => {
+                        if (error.response.status === 401)
+                            console.log("You are not authorized!");
+                        else if (error.response.status === 498) {
+                            const access = await refresh(refreshToken);
+                            return await addMessage(access, refreshToken);
+                        }
+                        resolve(false);
+                    }
+                );
+        });
+    };
+
+    const accessDirect = async () => {
         let accessToken = Cookies.get("access");
         let refreshToken = Cookies.get("refresh");
         const access = await hasAccess(accessToken, refreshToken);
         if (!access) {
             console.log("You are not authorized");
         } else {
-            await requestLogin(access, refreshToken);
+            await directMessage(access, refreshToken);
+        }
+    };
+
+    const accessAdd = async () => {
+        let accessToken = Cookies.get("access");
+        let refreshToken = Cookies.get("refresh");
+        const access = await hasAccess(accessToken, refreshToken);
+        if (!access) {
+            console.log("You are not authorized");
+        } else {
+            await addMessage(access, refreshToken);
         }
     };
 
     useEffect(() => {
-        if (receiver_id)
-            accessProtected()
-    }, [receiver_id])
+        if (receiver)
+            accessDirect()
+        socket = io(ENDPOINT);
+        socket.on('users', (data) => {
+            var arr = []
+            data.map(message => {
+                if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
+                    arr.push(message)
+            })
+            setresponse(arr)
+        })
+    }, [ENDPOINT, receiver])
 
-    const handleSubmit = () => {
-        axios.post('/addMessage')
+    const handleSubmit = (e) => {
+        e.preventDefault()
+        if (receiver)
+            accessAdd()
     }
+    console.log(response)
     return (
         <div className='chatMessages'>
-            <div>
-
+            <div className='chatMessages-header'>
+                {receiver?.dp ? <img src={receiver?.dp} /> : <img src='../images/male.png' />}
+                <h2>{receiver?.name}</h2>
             </div>
             <div className='chatMessages-container'>
-                <div className='chatMessages-message justifyLeft'>
-                    <img src='../images/male.png' />
-                    <p>Hello, Good Morning</p>
-                </div>
-                <div className='chatMessages-message justifyRight'>
-                    <img src='../images/male.png' />
-                    <p>Hello, Good Morning</p>
-                </div>
-                <div className='chatMessages-message justifyLeft'>
-                    <img src='../images/male.png' />
-                    <p>Hello, Good Morning</p>
-                </div>
+                {
+                    response?.map(single => (
+                        <div className={single.fromEmail === user ? `chatMessages-message justifyRight` : `chatMessages-message justifyLeft`}>
+                            <p>{single.message}</p>
+                            <span>{single.time}</span>
+                        </div>
+                    ))
+                }
             </div>
             <form className='chatMessages-input' onSubmit={handleSubmit}>
-                <input required type='text' placeholder='Send a message' />
+                <input onChange={(e) => setmessage(e.target.value)} required type='text' placeholder='Send a message' />
                 <SendIcon id='sendIcon' />
                 <button type="submit" style={{ display: 'none' }}></button>
             </form>
