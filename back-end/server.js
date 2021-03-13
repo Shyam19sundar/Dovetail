@@ -179,6 +179,7 @@ app.post('/newroom', auth, (req, res) => {
                 }, (err, room) => {
                     if (!err && room) {
                         room.roomMembers.push(res.locals.user.email)
+                        room.save()
                         res.send("Created Room")
                     }
                 })
@@ -189,9 +190,17 @@ app.post('/newroom', auth, (req, res) => {
     })
 })
 
+app.post('/roomList', (req, res) => {
+    Room.find({}, (err, found) => {
+        res.send(found)
+    })
+})
+
 app.post('/joinRoom', auth, (req, res) => {
     Room.findOne({ roomName: req.body.roomName }, (err, found) => {
-
+        found.roomMembers.push(res.locals.user.email)
+        found.save()
+        res.send(found)
     })
 })
 
@@ -218,6 +227,21 @@ app.post('/roomMessages', (req, res) => {
             if (err) return handleError(err);
             console.log(story);
         })
+})
+
+app.post('/roomMessage', auth, (req, res) => {
+    var d = new Date();
+    var date = d.toLocaleString()
+    Message.create({
+        message: req.body.message,
+        fromEmail: res.locals.user.email,
+        time: date,
+    }, (err, message) => {
+        Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+            found.roomMessages.push(message)
+            found.save()
+        })
+    })
 })
 
 app.get('/allMembers', (req, res) => {

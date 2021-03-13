@@ -1,7 +1,39 @@
-.room-list{
+.room-list {
     flex: 0.3;
+    border-right: 1px solid #180022;
 }
 
 .add-room-form{
     display: none;
+    /* display: flex; */
+}
+.add-room-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.add-room-container > button {
+    padding: 7px;
+    outline: none;
+    border: none;
+    border-radius: 10px;
+    margin: 10px;
+    background-color: #34004a;
+    color: aliceblue;
+    cursor: pointer;
+}
+.add-room-form > input {
+    padding: 7px;
+}
+.add-room-form > button {
+    display: inline;
+    padding: 7px;
+    width: 50px;
+    outline: none;
+    border: none;
+    border-radius: 5px;
+    margin: 0 10px;
+    background-color: #34004a;
+    color: aliceblue;
+    cursor: pointer;
 }

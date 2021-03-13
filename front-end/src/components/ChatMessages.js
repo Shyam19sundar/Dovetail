@@ -15,6 +15,7 @@ function ChatMessages() {
     const [{ receiver, user }, dispatch] = useStateValue()
     const [response, setresponse] = useState(null)
     const [message, setmessage] = useState("")
+    console.log(user)
 
     const directMessage = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
@@ -121,7 +122,7 @@ function ChatMessages() {
         if (receiver)
             accessAdd()
     }
-    console.log(response)
+    console.log(receiver)
     return (
         <div className='chatMessages'>
             <div className='chatMessages-header'>

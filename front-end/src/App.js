@@ -55,7 +55,7 @@ function App() {
             resolve(true);
           },
           async (error) => {
-            if (error.response.status === 401)
+            if (error.response?.status === 401)
               console.log("You are not authorized!");
             else if (error.response.status === 498) {
               const access = await refresh(refreshToken);
@@ -94,17 +94,21 @@ function App() {
               <Route path='/chats' exact>
                 <Chat />
               </Route>
-              <Route path='/rooms'>
+              <Route path='/rooms' exact>
                 <Room />
               </Route>
-              <Route path='/profile'>
+              <Route path='/profile' exact>
                 <Profile />
               </Route>
+
               <Route path='/video'>
                 <VideoCall />
               </Route>
               <Route path='/' exact>
                 <Home />
+              <Route path='/' >
+                <Home setPath={setPath} />
+       
               </Route>
             </Switch>
           </div>
