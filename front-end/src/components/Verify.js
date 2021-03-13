@@ -8,6 +8,8 @@ import { useHistory, withRouter } from "react-router-dom";
 function Verify() {
     const history = useHistory();
     const email = sessionStorage.getItem("email");
+    if (!email)
+        history.push('/signup')
     useEffect(() => {
         window.onbeforeunload = function () {
             return true;
@@ -27,26 +29,23 @@ function Verify() {
             })
             .then((res) =>
                 res.status == 200 ? history.push("/form") : console.log("")
-            );
-        // if (otpStatus == 200) {
-        //   history.push("/form");
-        // } else {
-        //   alert("An error occured, try again later");
-        // }
+            ).catch(err => {
+                if (err.message === 'Request failed with status code 401')
+                    alert('Incorrect OTP')
+            })
     };
 
     return (
-        <div className="verify signup-full">
+        <div className="verify">
             <div>
-                <p>Hi, {email}</p>
+                <h2>Hi, {email}</h2>
+                <p>We have send a verification mail to your email. Please verify that!</p>
                 <input type="text" placeholder="OTP" className="otp_input" />
                 <button
                     onClick={(e) => {
                         handleOTP();
                     }}
-                >
-                    Submit
-        </button>
+                >Submit</button>
                 <Countdown
                     className="count"
                     date={Date.now() + 300000}
