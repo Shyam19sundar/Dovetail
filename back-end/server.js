@@ -136,20 +136,28 @@ app.post('/getMe', auth, (req, res) => {
     res.send(res.locals.user.email)
 })
 
-app.post('/newroom', (req, res) => {
+app.post('/newroom', auth, (req, res) => {
     Room.find({ roomName: req.body.roomName }, (err, found) => {
         if (!err) {
             if (found.length === 0) {
                 Room.create({
                     roomName: req.body.roomName
                 }, (err, room) => {
-                    if (!err && room)
+                    if (!err && room) {
+                        room.roomMembers.push(res.locals.user.email)
                         res.send("Created Room")
+                    }
                 })
             } else {
                 res.send("Already Exists")
             }
         }
+    })
+})
+
+app.post('/joinRoom', auth, (req, res) => {
+    Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+
     })
 })
 
