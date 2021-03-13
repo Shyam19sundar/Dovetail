@@ -136,15 +136,18 @@ app.post('/getMe', auth, (req, res) => {
     res.send(res.locals.user.email)
 })
 
-app.post('/newroom', (req, res) => {
+app.post('/newroom', auth, (req, res) => {
     Room.find({ roomName: req.body.roomName }, (err, found) => {
         if (!err) {
             if (found.length === 0) {
                 Room.create({
                     roomName: req.body.roomName
                 }, (err, room) => {
-                    if (!err && room)
+                    if (!err && room) {
+                        room.roomMembers.push(res.locals.user.email)
+                        room.save()
                         res.send("Created Room")
+                    }
                 })
             } else {
                 res.send("Already Exists")
@@ -153,13 +156,27 @@ app.post('/newroom', (req, res) => {
     })
 })
 
-app.post('/directMessage', auth, (req, res) => {
-    Message.find({ fromEmail: res.locals.user.email, toEmail: req.body.receiver }, (err, found) => {
-        if (!err && found.length !== 0) {
-            res.send(found)
-        }
+app.post('/roomList', (req, res) => {
+    Room.find({}, (err, found) => {
+        res.send(found)
     })
-    Message.find({ toEmail: res.locals.user.email, fromEmail: req.body.receiver }, (err, found) => {
+})
+
+app.post('/joinRoom', auth, (req, res) => {
+    Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+        found.roomMembers.push(res.locals.user.email)
+        found.save()
+        res.send(found)
+    })
+})
+
+app.post('/directMessage', auth, (req, res) => {
+    Message.find({
+        $and: [
+            { $or: [{ fromEmail: res.locals.user.email }, { fromEmail: req.body.receiver }] },
+            { $or: [{ toEmail: res.locals.user.email }, { toEmail: req.body.receiver }] }
+        ]
+    }, (err, found) => {
         if (!err && found.length !== 0) {
             res.send(found)
         }
@@ -174,6 +191,21 @@ app.post('/roomMessages', (req, res) => {
             if (err) return handleError(err);
             console.log(story);
         })
+})
+
+app.post('/roomMessage', auth, (req, res) => {
+    var d = new Date();
+    var date = d.toLocaleString()
+    Message.create({
+        message: req.body.message,
+        fromEmail: res.locals.user.email,
+        time: date,
+    }, (err, message) => {
+        Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+            found.roomMessages.push(message)
+            found.save()
+        })
+    })
 })
 
 app.get('/allMembers', (req, res) => {

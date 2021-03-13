@@ -53,7 +53,7 @@ function App() {
             resolve(true);
           },
           async (error) => {
-            if (error.response.status === 401)
+            if (error.response?.status === 401)
               console.log("You are not authorized!");
             else if (error.response.status === 498) {
               const access = await refresh(refreshToken);
