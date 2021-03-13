@@ -108,8 +108,9 @@ function ChatMessages() {
         socket.on('users', (data) => {
             var arr = []
             data.map(message => {
-                if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
-                    arr.push(message)
+                if (user && receiver && receiver?.email)
+                    if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
+                        arr.push(message)
             })
             setresponse(arr)
         })
