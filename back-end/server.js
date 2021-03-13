@@ -29,7 +29,19 @@ app.use(
 );
 
 io.on('connect', (socket) => {
-    // console.log("Connected")
+    console.log("Connected")
+
+    const changeStream = Message.watch();
+    changeStream.on("change", function (change) {
+        console.log("User COLLECTION CHANGED");
+        Message.find({}, (err, data) => {
+            if (err) throw err;
+            if (data) {
+                // RESEND ALL USERS
+                socket.emit("users", data);
+            }
+        });
+    });
 
     // socket.on('join', ({ roomName }, callback) => {
     //     const { error, user } = addUser({ id: socket.id, roomName });
@@ -39,30 +51,6 @@ io.on('connect', (socket) => {
 
     // socket.join(user.room);
 
-    // socket.emit('message', { user: 'admin', text: `${user.name}, welcome to room ${user.room}.` });
-    // socket.broadcast.to(user.room).emit('message', { user: 'admin', text: `${user.name} has joined!` });
-
-    // io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
-
-    //     callback();
-    // });
-
-    // socket.on('sendMessage', (message, callback) => {
-    //     const user = getUser(socket.id);
-
-    //     io.to(user.room).emit('message', { user: user.name, text: message });
-
-    //     callback();
-    // });
-
-    // socket.on('disconnect', () => {
-    //     const user = removeUser(socket.id);
-
-    //     if (user) {
-    //         io.to(user.room).emit('message', { user: 'Admin', text: `${user.name} has left.` });
-    //         io.to(user.room).emit('roomData', { room: user.room, users: getUsersInRoom(user.room) });
-    //     }
-    // })
 });
 const auth = async (req, res, next) => {
     var accessToken = req.headers["authorization"];
@@ -71,10 +59,9 @@ const auth = async (req, res, next) => {
             message: "Access Token required",
         });
     accessToken = accessToken.split(" ")[1];
-    console.log(accessToken);
     jwt.verify(accessToken, "AccessGiven", async (err, user) => {
         if (user) {
-            req.user = user;
+            res.locals.user = user;
             next();
         } else if (err.message === "jwt expired") {
             return res.status(498).json({
@@ -123,9 +110,9 @@ const User = new mongoose.model("User", userSchema)
 
 const messageSchema = new mongoose.Schema({
     message: String,
-    email: String,
+    fromEmail: String,
+    toEmail: String,
     time: String,
-    received: Boolean
 })
 const Message = new mongoose.model("Message", messageSchema)
 
@@ -145,6 +132,10 @@ app.get("/", (req, res) => {
     }
 })
 
+app.post('/getMe', auth, (req, res) => {
+    res.send(res.locals.user.email)
+})
+
 app.post('/newroom', (req, res) => {
     Room.find({ roomName: req.body.roomName }, (err, found) => {
         if (!err) {
@@ -162,14 +153,20 @@ app.post('/newroom', (req, res) => {
     })
 })
 
-app.get('/directMessage', auth, (req, res) => {
-    console.log(req)
-    console.log(req.user)
-    console.log("kkk" + req.query.receiver)
+app.post('/directMessage', auth, (req, res) => {
+    Message.find({ fromEmail: res.locals.user.email, toEmail: req.body.receiver }, (err, found) => {
+        if (!err && found.length !== 0) {
+            res.send(found)
+        }
+    })
+    Message.find({ toEmail: res.locals.user.email, fromEmail: req.body.receiver }, (err, found) => {
+        if (!err && found.length !== 0) {
+            res.send(found)
+        }
+    })
 })
 
 app.post('/roomMessages', (req, res) => {
-    console.log(req.body)
     Room.findOne({ roomName: req.body.roomName })
         .populate('roomMembers')
         .populate('roomMessages')
@@ -182,6 +179,17 @@ app.post('/roomMessages', (req, res) => {
 app.get('/allMembers', (req, res) => {
     User.find({}, (err, found) => {
         res.send(found)
+    })
+})
+
+app.post('/addMessage', auth, (req, res) => {
+    var d = new Date();
+    var date = d.toLocaleString()
+    Message.create({
+        message: req.body.message,
+        fromEmail: res.locals.user.email,
+        toEmail: req.body.toEmail,
+        time: date,
     })
 })
 
@@ -292,7 +300,7 @@ app.post("/signup", (req, res) => {
 app.post("/login", (req, res) => {
     const user_email = req.body.user ? req.body.user.email : req.body.email;
     const typePass = req.body.user ? req.body.user.password : req.body.password;
-    console.log(user_email + ',' + typePass)
+    console.log(user_email + ',,' + typePass)
     User.findOne({ email: user_email }, (err, found) => {
         console.log(found)
         if (!err && found) {
@@ -302,7 +310,7 @@ app.post("/login", (req, res) => {
                     const access = jwt.sign(
                         { email: user_email },
                         "AccessGiven",
-                        { expiresIn: "10s" }
+                        { expiresIn: "900s" }
                     );
                     const refresh = jwt.sign(
                         { email: user_email },
@@ -336,7 +344,7 @@ app.post("/refresh", (req, res) => {
         });
     jwt.verify(refreshToken, "TokenIssued", (err, user) => {
         if (!err) {
-            const accessToken = jwt.sign({ user: user.user }, "AccessGiven", {
+            const accessToken = jwt.sign({ email: user.email }, "AccessGiven", {
                 expiresIn: "11s",
             });
             return res.status(200).json({
@@ -353,11 +361,6 @@ app.post("/refresh", (req, res) => {
         }
     });
 });
-
-app.post("/protected", auth, (req, res) => {
-    return res.status(200).json({ message: "Protected content accessed" });
-});
-
 
 server.listen(app.get("port"), function () {
     console.log(`App started on port ${app.get("port")}`)

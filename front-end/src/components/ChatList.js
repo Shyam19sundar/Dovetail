@@ -4,9 +4,10 @@ import '../css/ChatList.css'
 import axios from '../axios';
 import ChatMessages from './ChatMessages';
 import { useHistory, withRouter } from "react-router-dom";
+import { useStateValue } from '../StateProvider'
 
 function ChatList() {
-    const history = useHistory();
+    const [{ receiver_id }, dispatch] = useStateValue()
 
     const [members, setmembers] = useState([])
     const [searches, setsearches] = useState([])
@@ -14,10 +15,13 @@ function ChatList() {
         axios.get('/allMembers').then(res => setmembers(res.data))
     }, [])
     const handleChange = (e) => {
-        setsearches(members.filter(member => member.name.includes(e.target.value)))
+        setsearches(members?.filter(member => member.name.includes(e.target.value)))
     }
     const handleClick = (search) => {
-        history.push(`/chats?${search._id}`);
+        dispatch({
+            type: 'SET_CHAT_RECEIVER',
+            receiver: search
+        })
     }
     return (
         <div className='chatList'>
@@ -62,4 +66,5 @@ function ChatList() {
     )
 }
 
-export default withRouter(ChatList)
+// export default withRouter(ChatList)
+export default ChatList
