@@ -9,6 +9,7 @@ import React, { useState, useEffect } from 'react'
 import $ from "jquery"
 import SignUp from "./components/SignUp";
 import Verify from "./components/Verify";
+import Room from "./components/Room";
 
 function App() {
   const [path, setPath] = useState(window.location.pathname)
@@ -34,6 +35,9 @@ function App() {
           <Switch>
             <Route path='/chats' exact>
               <Chat />
+            </Route>
+            <Route path='/rooms' exact>
+              <Room />
             </Route>
             <Route path='/'>
               <Home />
