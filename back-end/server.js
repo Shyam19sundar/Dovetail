@@ -138,7 +138,6 @@ const userSchema = new mongoose.Schema({
     name: String,
     dp: String,
     interests: [],
-    works: []
 })
 const User = new mongoose.model("User", userSchema)
 
@@ -169,6 +168,28 @@ app.get("/", (req, res) => {
 
 app.post('/getMe', auth, (req, res) => {
     res.send(res.locals.user.email)
+})
+
+app.get('/getMyName', (req, res) => {
+    User.findOne({ email: req.query.email }, (err, found) => {
+        res.send(found.name)
+    })
+})
+
+app.get('/getDetails', (req, res) => {
+    User.findOne({ email: req.query.email }, (err, found) => {
+        res.send(found)
+    })
+})
+
+app.post('/updateInterst', auth, (req, res) => {
+    User.findOne({ email: res.locals.user.email }, (err, found) => {
+        if (found && !err) {
+            found.interests.push(req.body.interests)
+            found.save()
+            res.send(found)
+        }
+    })
 })
 
 app.post('/newroom', auth, (req, res) => {
@@ -423,6 +444,15 @@ app.post("/login", (req, res) => {
         }
     });
 });
+
+app.post('/updatedDp', (req, res) => {
+    console.log(req.body)
+    User.findOne({ email: req.body.user }, (err, found) => {
+        found.dp = req.body.dp
+        found.save()
+        res.send("Done")
+    })
+})
 
 app.get('/profileDetails', (req, res) => {
     console.log(req.query)

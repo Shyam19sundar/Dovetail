@@ -2,6 +2,8 @@ export const initialState = {
     receiver: null,
     room: null,
     roomDetails: null
+    uploaded: false
+
 };
 
 export const reducer = (state, action) => {
@@ -24,6 +26,12 @@ export const reducer = (state, action) => {
                 ...state,
                 roomDetails: action.roomDetails,
             };
+        }
+
+        case 'SET_UPLOAD': {
+            return {
+                uploaded: action.uploaded
+            }
         }
 
         default:
