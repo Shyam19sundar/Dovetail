@@ -1,14 +1,9 @@
-import { Button } from '@material-ui/core'
 import React, { useState, useEffect } from 'react'
-import Modal from 'react-bootstrap/Modal'
-import Image from 'react-bootstrap/Image'
-import Container from 'react-bootstrap/Container'
-import Col from 'react-bootstrap/Col'
 import "../css/Model.css"
 import { storage } from "../firebase"
 import axios from '../axios';
-import $ from 'jquery'
 import { useStateValue } from '../StateProvider'
+import $ from 'jquery'
 
 function Model(props) {
     const [image, setImage] = useState(null)
@@ -21,6 +16,15 @@ function Model(props) {
             setImage(temp)
         }
     }
+
+    useEffect(() => {
+        console.log(props.show)
+        if (props.show)
+            $('.modal').show()
+        else
+            $('.modal').hide()
+
+    }, [props])
 
     const handleSubmit = e => {
         e.preventDefault()
@@ -60,34 +64,27 @@ function Model(props) {
     }
 
     return (
-        <Modal
-            {...props}
-            size="sm"
-            aria-labelledby="contained-modal-title-vcenter"
-            centered
-        >
-            <Modal.Header closeButton>
-                <Modal.Title id="contained-modal-title-vcenter">
-                    Modal heading
-          </Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
-                <Container>
-                    <div>
-                        <input type="file" onChange={handleChange} />
-                    </div>
-                    <Col xs={6} md={4}>
-                        {image ? <Image src={window.URL.createObjectURL(image)} roundedCircle />
-                            :
-                            <Image src="profile.png" roundedCircle />}
-                    </Col>
-                    <Button onClick={handleSubmit}>Upload</Button>
-                </Container>
-            </Modal.Body>
-            <Modal.Footer>
-                <Button>Close</Button>
-            </Modal.Footer>
-        </Modal>
+
+        <div id="myModal" className="modal">
+
+            <div className="modal-content">
+                <div>
+                    <input type="file" onChange={handleChange} />
+                </div>
+                <div>
+                    {image ? <img src={window.URL.createObjectURL(image)} roundedCircle />
+                        :
+                        <img src="profile.png" roundedCircle />}
+                </div>
+                <button onClick={handleSubmit}>Upload</button>
+                <h5 onClick={() => {
+                    dispatch({
+                        type: 'SET_UPLOAD',
+                        uploaded: false
+                    })
+                }}>Close</h5>
+            </div>
+        </div>
     )
 }
 

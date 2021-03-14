@@ -7,21 +7,37 @@ import $ from "jquery"
 import axios from '../axios';
 import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
+import { makeStyles } from '@material-ui/core/styles';
 import Model from './Model';
 import { useStateValue } from '../StateProvider';
+import { Avatar } from '@material-ui/core';
 
 function Profile() {
+    const useStyles = makeStyles((theme) => ({
+        root: {
+            display: 'flex',
+            '& > *': {
+                margin: theme.spacing(1),
+            },
+        },
+        small: {
+            width: theme.spacing(3),
+            height: theme.spacing(3),
+        },
+        large: {
+            width: theme.spacing(20),
+            height: theme.spacing(20),
+        },
+    }));
+    const classes = useStyles();
     const [{ uploaded }, dispatch] = useStateValue()
-
+    const [interests, setinterests] = useState("")
     const [nameChange, setnameChange] = useState(false)
     const [name, setname] = useState("")
     const user = sessionStorage.getItem("user");
     const [profileDetails, setprofileDetails] = useState({})
     const handleAreas = () => {
         $('.addAreas-container').toggle({ display: 'block' })
-    }
-    const handleWorks = () => {
-        $('.addWorks-container').toggle({ display: 'block' })
     }
 
     const handleName = () => {
@@ -73,9 +89,60 @@ function Profile() {
         }
     };
 
+    const updateInterst = async (access, refreshToken) => {
+        return new Promise((resolve, reject) => {
+            axios
+                .post(
+                    "/updateInterst",
+                    {
+                        interests: interests
+                    },
+                    {
+                        headers: {
+                            authorization: `Bearer ${access}`,
+                        },
+                    }
+                )
+                .then(
+                    (response) => {
+                        if (response.data) {
+                            setprofileDetails(response.data)
+                            setnameChange(false)
+                        }
+                        resolve(true);
+                    },
+                    async (error) => {
+                        if (error.response.status === 401)
+                            console.log("You are not authorized!");
+                        else if (error.response.status === 498) {
+                            const access = await refresh(refreshToken);
+                            return await updateInterst(access, refreshToken);
+                        }
+                        resolve(false);
+                    }
+                );
+        });
+    };
+
+    const accessInterest = async () => {
+        let accessToken = Cookies.get("access");
+        let refreshToken = Cookies.get("refresh");
+        const access = await hasAccess(accessToken, refreshToken);
+        if (!access) {
+            console.log("You are not authorized");
+        } else {
+            await updateInterst(access, refreshToken);
+        }
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault()
         accessName()
+    }
+
+    const handleInterests = e => {
+        e.preventDefault()
+        accessInterest()
     }
 
     useEffect(() => {
@@ -88,19 +155,14 @@ function Profile() {
 
     return (
         <div>
-            <Model show={uploaded} onHide={() => {
-                dispatch({
-                    type: 'SET_UPLOAD',
-                    uploaded: false
-                })
-            }} />
+            <Model show={uploaded} />
             {
                 Cookies.get('refresh') ?
                     <div className="profile">
-                        <div className="profile-image">
+                        <div className={classes.root}>
                             {profileDetails.dp ?
                                 <div>
-                                    <img src={profileDetails.dp} />
+                                    <Avatar className={classes.large} src={profileDetails.dp} />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
@@ -109,7 +171,7 @@ function Profile() {
                                     }} className="dp-edit" />
                                 </div> :
                                 <div>
-                                    <img src="../images/male.png" />
+                                    <Avatar className={classes.large} src="../images/male.png" />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
@@ -139,35 +201,20 @@ function Profile() {
                                 <h2>What I love</h2>
                                 <AddIcon className='add-icon' onClick={handleAreas} />
                                 <div className='addAreas-container'>
-                                    <input type='text' className='addAreas-input' placeholder='Add an area' />
-                                    <SendIcon className='areas-send' />
+                                    <form onSubmit={handleInterests}>
+                                        <input type='text' onChange={(e) => setinterests(e.target.value)} className='addAreas-input' placeholder='Add an area' />
+                                        <SendIcon type="submit" className='areas-send' />
+                                    </form>
                                 </div>
 
                             </div>
                             <div>
-                                <p>Music</p>
+                                {profileDetails.interests.length !== 0 ? profileDetails.interests.map(interest => <p>{interest}</p>) : <h3>Update What You Love</h3>}
+                                {/* <p>Music</p>
                                 <p>Cricket</p>
                                 <p>Movies</p>
                                 <p>Science</p>
-                                <p>Science</p>
-                            </div>
-                        </div>
-
-                        <div className='profile-areas'>
-                            <div className='works-head'>
-                                <h2>What I have done</h2>
-                                <AddIcon className='add-icon' onClick={handleWorks} />
-                                <div className='addWorks-container'>
-                                    <input type='text' className='addWorks-input' placeholder='Add a work' />
-                                    <SendIcon className='works-send' />
-                                </div>
-                            </div>
-                            <div>
-                                <p>Music</p>
-                                <p>Cricket</p>
-                                <p>Movies</p>
-                                <p>Science</p>
-                                <p>Science</p>
+                                <p>Science</p> */}
                             </div>
                         </div>
                     </div> :

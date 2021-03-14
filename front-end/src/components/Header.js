@@ -1,13 +1,22 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import '../css/Header.css'
 import $ from 'jquery'
 import { Link } from 'react-router-dom';
 import Cookies from 'js-cookie';
+import axios from '../axios';
 
 function Header() {
     const [signedin, setSignedin] = useState(false)
-
+    const [name, setname] = useState("")
     const user = sessionStorage.getItem("user");
+
+    useEffect(() => {
+        axios.get('/getMyName', {
+            params: {
+                email: user
+            }
+        }).then(res => setname(res.data))
+    }, [user])
 
     return (
         <div className='header'>
@@ -16,7 +25,7 @@ function Header() {
                 {Cookies.get('refresh') ?
                     <div>
                         <h3>Hello</h3>
-                        <h2>{`${user}`}</h2>
+                        <h2>{name}</h2>
                     </div>
 
                     :
