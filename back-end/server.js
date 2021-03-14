@@ -10,36 +10,37 @@ require("dotenv").config();
 const cors = require("cors");
 app.use(express.json());
 app.set("port", 5000);
-//videochat
+//videochat application --> Working correctly,but need to be deployed....
+//by adding "proxy":"http://localhost:8000"
 
-const http2 = require("http");
-const app2 = express();
-const server2 = http2.createServer(app2);
+// const http2 = require("http");
+// const app2 = express();
+// const server2 = http2.createServer(app2);
 
-const vio = socketio(server2);
+// const vio = socketio(server2);
 
-const users = {};
+// const users = {};
 
-vio.on('connection', socket => {
-    if (!users[socket.id]) {
-        users[socket.id] = socket.id;
-    }
-    socket.emit("yourID", socket.id);
-    vio.sockets.emit("allUsers", users);
-    socket.on('disconnect', () => {
-        delete users[socket.id];
-    })
+// vio.on('connection', socket => {
+//     if (!users[socket.id]) {
+//         users[socket.id] = socket.id;
+//     }
+//     socket.emit("yourID", socket.id);
+//     vio.sockets.emit("allUsers", users);
+//     socket.on('disconnect', () => {
+//         delete users[socket.id];
+//     })
 
-    socket.on("callUser", (data) => {
-        vio.to(data.userToCall).emit('hey', { signal: data.signalData, from: data.from });
-    })
+//     socket.on("callUser", (data) => {
+//         vio.to(data.userToCall).emit('hey', { signal: data.signalData, from: data.from });
+//     })
 
-    socket.on("acceptCall", (data) => {
-        vio.to(data.to).emit('callAccepted', data.signal);
-    })
-});
+//     socket.on("acceptCall", (data) => {
+//         vio.to(data.to).emit('callAccepted', data.signal);
+//     })
+// });
 
-server2.listen(8000, () => console.log('Video server is running on port 8000'));
+// server2.listen(8000, () => console.log('Video server is running on port 8000'));
 
 
 //
