@@ -209,7 +209,7 @@ function Profile() {
 
                             </div>
                             <div>
-                                {profileDetails.interests.length !== 0 ? profileDetails.interests.map(interest => <p>{interest}</p>) : <h3>Update What You Love</h3>}
+                                {profileDetails?.interests ? profileDetails.interests.map(interest => <p>{interest}</p>) : <h3>Update What You Love</h3>}
                                 {/* <p>Music</p>
                                 <p>Cricket</p>
                                 <p>Movies</p>

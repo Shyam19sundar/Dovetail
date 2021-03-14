@@ -11,11 +11,12 @@ function Header() {
     const user = sessionStorage.getItem("user");
 
     useEffect(() => {
-        axios.get('/getMyName', {
-            params: {
-                email: user
-            }
-        }).then(res => setname(res.data))
+        if (user)
+            axios.get('/getMyName', {
+                params: {
+                    email: user
+                }
+            }).then(res => setname(res.data))
     }, [user])
 
     return (

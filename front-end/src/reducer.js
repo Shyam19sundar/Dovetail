@@ -1,7 +1,7 @@
 export const initialState = {
     receiver: null,
     room: null,
-    roomDetails: null
+    roomDetails: null,
     uploaded: false
 
 };
