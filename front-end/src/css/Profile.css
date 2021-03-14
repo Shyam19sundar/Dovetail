@@ -97,6 +97,41 @@
     top: 3px;
     cursor: pointer;
 }
+.anonymous-profile {
+    display: flex;
+    width: 73vw;
+    height: 60vh;
+    margin: 0 auto;
+    position: absolute;
+    top: 25%;
+    left: 52%;
+    transform: translateX(-50%);
+}
+.anonymous-profile > img {
+    margin: auto auto;
+    width: 56%;
+    height: 100%;
+    display: flex;
+}
+.anonymous-profile > div {
+    width: 100%;
+    height: 100%;
+    justify-content: center;
+    display: flex;
+    flex-direction: column;
+    margin: auto auto;
+    align-items: center;
+}
+.anonymous-profile > div > p{
+  font-size: 40px;
+  /* font-family: ; */
+  font-family: 'Libre Baskerville', sans-serif;
+  margin: 20px;
+}
+.anonymous-profile > div > p:nth-child(2) {
+    font-family: 'Akaya Telivigala', cursive;
+    color: rgba(0,0,0,0.8);
+}
 
 
 

@@ -6,6 +6,7 @@ import MeetingRoomIcon from '@material-ui/icons/MeetingRoom';
 import ExitToAppIcon from '@material-ui/icons/ExitToApp';
 import '../css/Leftbar.css'
 import { Link } from 'react-router-dom'
+import Cookies from 'js-cookie'
 import $ from "jquery"
 
 function Leftbar() {
@@ -14,11 +15,17 @@ function Leftbar() {
         if (path === "/login")
             $('.leftBar').hide()
     }, [])
+
+    const handleLogout = () => {
+        Cookies.remove('access');
+        Cookies.remove('refresh');
+        setPath('/')
+    }
     return (
         <div className='leftBar'>
             <div>
                 <div className={path === '/' ? 'leftBar-icon leftBar-active' : 'leftBar-icon'}>
-                    <Link to="/" onClick={() => setPath('/')} >
+                    <Link to="/" onClick={() => setPath('/')} setPath={setPath}>
                         <HomeIcon />
                         <p>Home</p>
                     </Link>
@@ -44,9 +51,11 @@ function Leftbar() {
                     </Link>
                 </div>
                 <div className='leftBar-icon'>
-                    <Link>
-                        <ExitToAppIcon />
-                        <p>Logout</p>
+                    <Link to='/'>
+                        <div onClick={handleLogout}>
+                            <ExitToAppIcon />
+                            <p>Logout</p>
+                        </div>
                     </Link>
                 </div>
             </div>

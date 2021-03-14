@@ -2,6 +2,7 @@ import axios from '../axios.js'
 import React from 'react'
 import { hasAccess, refresh } from './Access.js'
 import Cookies from 'js-cookie'
+import '../css/Home.css'
 
 function Home({ setPath }) {
     // axios.post('/protected').then(res => console.log(res).catch(err => console.log(err)))
@@ -49,10 +50,16 @@ function Home({ setPath }) {
     };
     return (
         <div className='home'>
-            <div>
-                <input />
+            <div className='home-content'>
+                <h2>We help you get connected !</h2>
+                {/* <input type='text' placeholder='Search Rooms' /> */}
+                <p>We help you find your replica. Do interact with them.</p>
+                <p> Join us today !</p>
             </div>
-            <img src='./images/puzzle-pic2.png' />
+            <div className='home-image'>
+                <img src='./images/puzzle-pic2.png' />
+            </div>
+
         </div>
     )
 }
