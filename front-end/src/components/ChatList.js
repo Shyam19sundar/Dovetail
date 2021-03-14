@@ -7,7 +7,7 @@ import { useHistory, withRouter } from "react-router-dom";
 import { useStateValue } from '../StateProvider'
 
 function ChatList() {
-    const [{ receiver_id }, dispatch] = useStateValue()
+    const [{ receiver }, dispatch] = useStateValue()
 
     const [members, setmembers] = useState([])
     const [list, setList] = useState([])
@@ -23,6 +23,7 @@ function ChatList() {
         setsearches(members?.filter(member => member.name.includes(e.target.value)))
     }
     const handleClick = (search) => {
+
         dispatch({
             type: 'SET_CHAT_RECEIVER',
             receiver: search
@@ -34,7 +35,7 @@ function ChatList() {
                 <input type='text' placeholder='Search' onChange={(e) => handleChange(e)} />
                 <SearchIcon id='searchIcon' />
             </div>
-          {
+            {
                 list?.map(single => (
                     <div onClick={() => handleClick(single)} className='chatList-searchList'>
                         <img src='../images/male.png' />

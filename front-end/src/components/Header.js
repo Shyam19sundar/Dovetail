@@ -1,13 +1,12 @@
 import React, { useState } from 'react'
 import '../css/Header.css'
 import $ from 'jquery'
-import { useStateValue } from "../StateProvider";
 import { Link } from 'react-router-dom';
 
 function Header() {
-    const [{ user }, dispatch] = useStateValue()
     const [signedin, setSignedin] = useState(false)
 
+    const user = sessionStorage.getItem("user");
 
     return (
         <div className='header'>

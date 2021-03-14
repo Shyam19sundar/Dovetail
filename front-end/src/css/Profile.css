@@ -84,14 +84,28 @@
     margin-left: 10px;
     width: 200px;
 }
-.addAreas-container , .addWorks-container{
+.addAreas-container , .addWorks-container {
     position: relative;
     width: 200px;
     display: flex;
     align-items: center;
     display:none;
 }
-.areas-send , .works-send{
+
+.addName-container{
+    width: 200px;
+    align-items: center;
+}
+
+.addName{
+    padding: 6px;
+    border-radius: 10px;
+    outline: none;
+    border: 2px solid #180022;
+    height: 20px;
+}
+
+.areas-send , .works-send , .name-update{
     position: absolute;
     right: -20px;
     top: 3px;
