@@ -1,5 +1,4 @@
 .chatMessages {
-    overflow-y: scroll;
     flex: 0.7;
     display: flex;
     flex-direction: column;
@@ -32,6 +31,11 @@
 .chatMessages-message {
     display: flex;
     align-items: center;
+    margin: 10px;
+}
+.chatMessages-message span{
+    font-size: 12px;
+    padding-right: 10px;
 }
 .chatMessages-message > p {
     padding: 10px 20px;
@@ -60,11 +64,14 @@
 }
 .chatMessages-header {
     width: 100%;
-    height: 10%;
+    height: 11%;
     background-color: #8a2be2;
     display: flex;
     align-items: center;
 }
 .chatMessages-header > img {
     width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    margin: 5px;
 }

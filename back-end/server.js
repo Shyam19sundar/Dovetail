@@ -138,7 +138,6 @@ const userSchema = new mongoose.Schema({
     name: String,
     dp: String,
     interests: [],
-    works: []
 })
 const User = new mongoose.model("User", userSchema)
 
@@ -147,6 +146,7 @@ const messageSchema = new mongoose.Schema({
     fromEmail: String,
     toEmail: String,
     time: String,
+    roomId: String
 })
 const Message = new mongoose.model("Message", messageSchema)
 
@@ -170,6 +170,28 @@ app.post('/getMe', auth, (req, res) => {
     res.send(res.locals.user.email)
 })
 
+app.get('/getMyName', (req, res) => {
+    User.findOne({ email: req.query.email }, (err, found) => {
+        res.send(found.name)
+    })
+})
+
+app.get('/getDetails', (req, res) => {
+    User.findOne({ email: req.query.email }, (err, found) => {
+        res.send(found)
+    })
+})
+
+app.post('/updateInterst', auth, (req, res) => {
+    User.findOne({ email: res.locals.user.email }, (err, found) => {
+        if (found && !err) {
+            found.interests.push(req.body.interests)
+            found.save()
+            res.send(found)
+        }
+    })
+})
+
 app.post('/newroom', auth, (req, res) => {
     Room.find({ roomName: req.body.roomName }, (err, found) => {
         if (!err) {
@@ -178,9 +200,16 @@ app.post('/newroom', auth, (req, res) => {
                     roomName: req.body.roomName
                 }, (err, room) => {
                     if (!err && room) {
-                        room.roomMembers.push(res.locals.user.email)
-                        room.save()
-                        res.send("Created Room")
+                        User.findOne({ email: res.locals.user.email }, (err, foundUser) => {
+                            if (!err && foundUser) {
+                                room.roomMembers.push(foundUser._id)
+                                room.save()
+                                Room.find({}, (err, found) => {
+                                    res.send(found)
+                                })
+
+                            }
+                        })
                     }
                 })
             } else {
@@ -190,7 +219,7 @@ app.post('/newroom', auth, (req, res) => {
     })
 })
 
-app.post('/roomList', (req, res) => {
+app.get('/roomList', (req, res) => {
     Room.find({}, (err, found) => {
         res.send(found)
     })
@@ -223,9 +252,17 @@ app.post('/roomMessages', (req, res) => {
     Room.findOne({ roomName: req.body.roomName })
         .populate('roomMembers')
         .populate('roomMessages')
-        .exec(function (err, story) {
+        .exec(function (err, messages) {
             if (err) return handleError(err);
-            console.log(story);
+            res.send(messages.roomMessages);
+        })
+})
+app.post('/roomMembers', (req, res) => {
+    Room.findOne({ roomName: req.body.roomName })
+        .populate('roomMembers')
+        .exec(function (err, members) {
+            if (err) return handleError(err);
+            res.send(members.roomMembers);
         })
 })
 
@@ -237,7 +274,9 @@ app.post('/roomMessage', auth, (req, res) => {
         fromEmail: res.locals.user.email,
         time: date,
     }, (err, message) => {
-        Room.findOne({ roomName: req.body.roomName }, (err, found) => {
+        Room.findOne({ roomName: req.body.room }, (err, found) => {
+            message.roomId = found._id
+            message.save()
             found.roomMessages.push(message)
             found.save()
         })
@@ -267,10 +306,11 @@ function randomString(length, chars) {
         result += chars[Math.round(Math.random() * (chars.length - 1))];
     return result;
 }
-function createUser(email, password, pass, res) {
+function createUser(email, password, name, pass, res) {
     User.create({
         email: email,
-        password: password
+        password: password,
+        name: name
     }, (err, user) => {
         if (err) console.log("Error in adding new user");
         else {
@@ -350,11 +390,12 @@ app.post("/otp-verify", (req, res) => {
 app.post("/signup", (req, res) => {
     const email = req.body.user.email;
     const pass = req.body.user.password;
+    const name = req.body.name
     if (email && pass) {
         bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(pass, salt, function (err, hash) {
                 if (!err) {
-                    createUser(email, hash, pass, res);
+                    createUser(email, hash, name, pass, res);
                 } else
                     return res.send("error in hash gen");
             });
@@ -403,6 +444,30 @@ app.post("/login", (req, res) => {
         }
     });
 });
+
+app.post('/updatedDp', (req, res) => {
+    console.log(req.body)
+    User.findOne({ email: req.body.user }, (err, found) => {
+        found.dp = req.body.dp
+        found.save()
+        res.send("Done")
+    })
+})
+
+app.get('/profileDetails', (req, res) => {
+    console.log(req.query)
+    User.findOne({ email: req.query.user }, (err, found) => {
+        res.send(found)
+    })
+})
+
+app.post('/updateName', auth, (req, res) => {
+    User.findOne({ email: res.locals.user.email }, (err, found) => {
+        found.name = req.body.name
+        found.save()
+        res.send(found)
+    })
+})
 
 app.post("/refresh", (req, res) => {
     var refreshToken = req.body.refresh;

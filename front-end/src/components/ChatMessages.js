@@ -6,16 +6,18 @@ import { hasAccess, refresh } from './Access.js'
 import axios from '../axios';
 import { useStateValue } from '../StateProvider';
 import io from "socket.io-client";
+import $ from 'jquery'
 
 const ENDPOINT = 'http://localhost:5000';
 
 let socket;
 
 function ChatMessages() {
-    const [{ receiver, user }, dispatch] = useStateValue()
+    const [{ receiver }, dispatch] = useStateValue()
     const [response, setresponse] = useState(null)
     const [message, setmessage] = useState("")
-    console.log(user)
+    const user = sessionStorage.getItem("user");
+
 
     const directMessage = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
@@ -64,7 +66,6 @@ function ChatMessages() {
                 )
                 .then(
                     (response) => {
-                        setresponse(response.data);
                         resolve(true);
                     },
                     async (error) => {
@@ -116,13 +117,24 @@ function ChatMessages() {
             setresponse(arr)
         })
     }, [ENDPOINT, receiver])
+    console.log(user)
 
     const handleSubmit = (e) => {
+        $('.chatMessages-input input').val('')
         e.preventDefault()
-        if (receiver)
+        if (receiver) {
+            var d = new Date();
+            var date = d.toLocaleString()
+            const obj = {
+                fromEmail: user,
+                message: message,
+                time: date
+            }
+            setresponse((prev) => prev ? [...prev, obj] : obj)
             accessAdd()
+        }
     }
-    console.log(receiver)
+    console.log(response)
     return (
         <div className='chatMessages'>
             <div className='chatMessages-header'>
