@@ -7,8 +7,11 @@ import RoomContent from './RoomContent'
 function Room() {
     return (
         <div className='chat'>
-            <RoomList />
-            <RoomContent />
+            <div className='chat'>
+                <RoomList />
+                <RoomContent />
+            </div>
+
         </div>
     )
 }
