@@ -8,3 +8,5 @@ We have 'Rooms' and 'Chats' options for logged in users.
 
 In Linux, use
 'npm start' in both front end and back end folders, to start server
+
+Deployed Web App : https://dovetail-elan.herokuapp.com/
