@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { lazy, Suspense } from 'react'
 import ChatContent from './ChatContent'
 import ChatList from './ChatList'
 import '../css/Chat.css'
 import Cookies from 'js-cookie'
 
+
 function Chat() {
+
+    const renderLoader = () => <p>Loading...</p>;
     return (
         <div className='chat'>
             {Cookies.get('refresh') ?

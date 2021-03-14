@@ -50,14 +50,19 @@ function Leftbar() {
                         <p>Rooms</p>
                     </Link>
                 </div>
-                <div className='leftBar-icon'>
-                    <Link to='/'>
-                        <div onClick={handleLogout}>
-                            <ExitToAppIcon />
-                            <p>Logout</p>
+                {
+                    Cookies.get('refresh') ?
+                        <div className='leftBar-icon'>
+                            <Link to='/'>
+                                <div onClick={handleLogout}>
+                                    <ExitToAppIcon />
+                                    <p>Logout</p>
+                                </div>
+                            </Link>
                         </div>
-                    </Link>
-                </div>
+                        :
+                        null
+                }
             </div>
         </div>
     )

@@ -39,9 +39,18 @@
 }
 .chatList-searchList {
     color: #180022;
-    border-bottom: 1px solid #34004a;
+    border: 1px solid #34004a;
+    /* border-bottom: 1px solid #34004a; */
+    border-radius: 10px;
+}
+.chatList-searchList {
+    padding: 10px;
 }
 .chatList-scroll {
     height: 85%;
     overflow-y: scroll;
+}
+.room-searches h4{
+    /* height: 50px; */
+    padding: 20px 10px;
 }
