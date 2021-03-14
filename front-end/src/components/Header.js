@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import '../css/Header.css'
 import $ from 'jquery'
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 function Header() {
     const [signedin, setSignedin] = useState(false)
@@ -12,10 +13,17 @@ function Header() {
         <div className='header'>
             <h1>DOVETAIL</h1>
             <div>
-                <h3>{`Hello ${user}`}</h3>
-                <Link to='/login'>
-                    <button>Sign-in</button>
-                </Link>
+                {Cookies.get('refresh') ?
+                    <div>
+                        <h3>Hello</h3>
+                        <h2>{`${user}`}</h2>
+                    </div>
+
+                    :
+                    <Link to='/login'>
+                        <button>Sign-in</button>
+                    </Link>
+                }
             </div>
 
         </div >

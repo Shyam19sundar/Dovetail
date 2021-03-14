@@ -86,70 +86,82 @@ function Profile() {
     }, [])
 
     return (
-        <div className="profile">
-            <div className="profile-image">
-                {profileDetails.dp ?
-                    <div>
-                        <img src={profileDetails.dp} />
-                        <EditIcon onClick={dpChange} className="dp-edit" />
+        <div>
+            {
+                Cookies.get('refresh') ?
+                    <div className="profile">
+                        <div className="profile-image">
+                            {profileDetails.dp ?
+                                <div>
+                                    <img src={profileDetails.dp} />
+                                    <EditIcon onClick={dpChange} className="dp-edit" />
+                                </div> :
+                                <div>
+                                    <img src="../images/male.png" />
+                                    <EditIcon onClick={dpChange} className="dp-edit" />
+                                </div>}
+
+                        </div>
+                        <div className='profile-name'>
+                            {nameChange ?
+                                <div className='addName-container'>
+                                    <form onSubmit={handleSubmit}>
+                                        <input type='text' className='addName' onChange={(e) => setname(e.target.value)} placeholder='Update Name' />
+                                        <SendIcon type="submit" onClick={handleSubmit} className='name-update' />
+                                    </form>
+                                </div>
+                                :
+                                <div>
+                                    <h2>{profileDetails.name}</h2>
+                                    <EditIcon className="name-edit" onClick={handleName} />
+                                </div>
+                            }
+                        </div>
+                        <div className='profile-areas'>
+                            <div className='areas-head'>
+                                <h2>What I love</h2>
+                                <AddIcon className='add-icon' onClick={handleAreas} />
+                                <div className='addAreas-container'>
+                                    <input type='text' className='addAreas-input' placeholder='Add an area' />
+                                    <SendIcon className='areas-send' />
+                                </div>
+
+                            </div>
+                            <div>
+                                <p>Music</p>
+                                <p>Cricket</p>
+                                <p>Movies</p>
+                                <p>Science</p>
+                                <p>Science</p>
+                            </div>
+                        </div>
+
+                        <div className='profile-areas'>
+                            <div className='works-head'>
+                                <h2>What I have done</h2>
+                                <AddIcon className='add-icon' onClick={handleWorks} />
+                                <div className='addWorks-container'>
+                                    <input type='text' className='addWorks-input' placeholder='Add a work' />
+                                    <SendIcon className='works-send' />
+                                </div>
+                            </div>
+                            <div>
+                                <p>Music</p>
+                                <p>Cricket</p>
+                                <p>Movies</p>
+                                <p>Science</p>
+                                <p>Science</p>
+                            </div>
+                        </div>
                     </div> :
-                    <div>
-                        <img src="../images/male.png" />
-                        <EditIcon onClick={dpChange} className="dp-edit" />
-                    </div>}
-
-            </div>
-            <div className='profile-name'>
-                {nameChange ?
-                    <div className='addName-container'>
-                        <form onSubmit={handleSubmit}>
-                            <input type='text' className='addName' onChange={(e) => setname(e.target.value)} placeholder='Update Name' />
-                            <SendIcon type="submit" onClick={handleSubmit} className='name-update' />
-                        </form>
+                    <div className='anonymous-profile'>
+                        <img src='../images/anonymous.jpg' />
+                        <div>
+                            <p>You're not logged in :/</p>
+                            <p> Login to catch your personalized contents !</p>
+                        </div>
                     </div>
-                    :
-                    <div>
-                        <h2>{profileDetails.name}</h2>
-                        <EditIcon className="name-edit" onClick={handleName} />
-                    </div>
-                }
-            </div>
-            <div className='profile-areas'>
-                <div className='areas-head'>
-                    <h2>What I love</h2>
-                    <AddIcon className='add-icon' onClick={handleAreas} />
-                    <div className='addAreas-container'>
-                        <input type='text' className='addAreas-input' placeholder='Add an area' />
-                        <SendIcon className='areas-send' />
-                    </div>
-
-                </div>
-                <div>
-                    <p>Music</p>
-                    <p>Cricket</p>
-                    <p>Movies</p>
-                    <p>Science</p>
-                    <p>Science</p>
-                </div>
-            </div>
-
-            <div className='profile-areas'>
-                <div className='works-head'>
-                    <h2>What I have done</h2>
-                    <AddIcon className='add-icon' onClick={handleWorks} />
-                    <div className='addWorks-container'>
-                        <input type='text' className='addWorks-input' placeholder='Add a work' />
-                        <SendIcon className='works-send' />
-                    </div>
-                </div>
-                <div>
-                    <p>Music</p>
-                    <p>Cricket</p>
-                    <p>Movies</p>
-                    <p>Science</p>
-                    <p>Science</p>
-                </div>
-            </div>
+            }
         </div>
     )
 }

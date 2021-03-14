@@ -38,11 +38,10 @@
     padding-bottom: 10px;
     border-bottom: 1px solid white;
 }
-.chatList-searchList > div {
-    color: #180022;
-    border-bottom: 1px solid #34004a;
-}
 .chatList-searchList > img {
     padding-right: 20px;
     width: 80px;
+}
+.searches {
+    background-color: violet;
 }
