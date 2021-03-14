@@ -44,4 +44,18 @@
 }
 .searches {
     background-color: violet;
+    border-radius: 20px;
+    padding: 5px;
+}
+.chatList-scroll {
+    position: relative;
+    width: 100%;
+}
+.loading-icon {
+    z-index: -1;
+    position: absolute;
+    top: 40%;
+    left: 45%;
+    width: 30px;
+    height: 30px;
 }
