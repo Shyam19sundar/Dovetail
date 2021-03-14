@@ -7,6 +7,10 @@ We have 'Rooms' and 'Chats' options for logged in users.
 'Chats' enables private communication between those persons.We have profile for each user, which help others to know more about them.
 
 In Linux, use
-'npm start' in both front end and back end folders, to start server
+1) Install Node Package Manager
+2) git clone the repository or download the folder
+3) In command prompt go inside frontend folder and give 'npm i' and then 'npm start'
+4) Then in command prompt go inside backend folder and give 'npm i' and then 'npm start' or 'nodemon server.js' or 'node server.js'
+
 
 Deployed Web App : https://dovetail-elan.herokuapp.com/
