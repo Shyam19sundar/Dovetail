@@ -8,6 +8,7 @@ import SearchIcon from '@material-ui/icons/Search';
 import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
 import { useStateValue } from '../StateProvider';
+import ReactLoading from 'react-loading';
 
 const ENDPOINT = 'http://localhost:5000';
 
@@ -19,9 +20,15 @@ function RoomList() {
     const [{ room }, dispatch] = useStateValue()
     const [roomName, setroomName] = useState("")
     const [roomResponse, setroomResponse] = useState(null)
+    const [searches, setsearches] = useState([])
 
     const handleClick = () => {
         $('.add-room-form').toggle({ display: 'flex' })
+    }
+    const handleChange = (e) => {
+        if (e.target.value !== ('' && null))
+            setsearches(response?.filter(room => room?.roomName?.includes(e.target.value)))
+        else setsearches([])
     }
     const addNewRoom = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
@@ -41,6 +48,7 @@ function RoomList() {
                         console.log(response.data)
                         setResponse(response.data);
                         resolve(true);
+                        $('.loading-icon').hide()
                     },
                     async (error) => {
                         if (error.response.status === 401)
@@ -70,10 +78,14 @@ function RoomList() {
     const addRoom = (e) => {
         e.preventDefault()
         accessAddRoom()
+        $('.loading-icon').show()
     }
     useEffect(() => {
         // socket = io(ENDPOINT);
-        axios.get('/roomList').then(res => setResponse(res.data))
+        axios.get('/roomList').then(res => {
+            setResponse(res.data)
+            $('.loading-icon').hide()
+        })
     }, [ENDPOINT])
 
     const handleRoom = (room) => {
@@ -96,14 +108,23 @@ function RoomList() {
 
 
             <div className='chatList-search'>
-                <input type='text' placeholder='Search' />
+                <input type='text' placeholder='Search' onChange={(e) => handleChange(e)} />
                 <SearchIcon id='searchIcon' />
             </div>
             <div className='chatList-scroll'>
+                <ReactLoading color='#180022' type='spinningBubbles' className='loading-icon' />
+                {
+                    searches?.map(room => (
+                        <div onClick={() => handleClick(room)} className='chatList-searchList searches room-searches'>
+                            <div>
+                                <h4>{room.roomName}</h4>
+                            </div>
+                        </div>
+                    ))
+                }
                 {
                     response?.map(room => (
-                        <div onClick={() => handleRoom(room)} className='chatList-searchList'>
-                            <img src='../images/male.png' />
+                        <div onClick={() => handleRoom(room)} className='chatList-searchList room-searches'>
                             <div>
                                 <h4>{room.roomName}</h4>
                             </div>

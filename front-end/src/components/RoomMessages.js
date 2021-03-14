@@ -99,9 +99,9 @@ function RoomMessages() {
     return (
         <div className='roomMessages'>
             <div className='chatMessages-header'>
-                <h2>{room?.roomName}</h2>
+                <h2>{room?.roomName} </h2>
             </div>
-            <div className='chatMessages-container'>
+            <div className='chatMessages-container room'>
                 {
                     roomMessages?.map(single => (
                         <div className={single.fromEmail === user ? `chatMessages-message justifyRight` : `chatMessages-message justifyLeft`}>
