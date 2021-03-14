@@ -15,4 +15,4 @@ In Linux, use
 
 Deployed Web App : https://dovetail-elan.herokuapp.com/
 
-NOTE : If the server didn't respond add 'Allow CORS' extension and click on the 'C' icon.(Hosting Issues)
+NOTE : If the server didn't respond add 'Allow CORS' extension and click on the 'C' icon.(Hosting Issues) and Photo Upload is not compatible with the hosted web app, so for checking the photo upload please check with the Local Downloaded Repository
