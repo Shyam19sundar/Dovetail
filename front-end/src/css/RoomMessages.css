@@ -8,10 +8,10 @@
     color: aliceblue;
     padding-left: 20px;
 }
-.room p{
+.room div{
     color: aliceblue;
-    padding: 10px;
-    margin: 7px;
+    /* padding: 10px; */
+    margin-top: 5px;
 }
 #sendIcon {
     cursor: pointer;

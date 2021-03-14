@@ -6,6 +6,7 @@ import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
 import { useStateValue } from '../StateProvider';
 import io from "socket.io-client";
+import $ from 'jquery'
 
 const ENDPOINT = 'http://localhost:5000';
 
@@ -83,6 +84,7 @@ function RoomMessages() {
     };
 
     const handleSubmit = (e) => {
+        $('.chatMessages-input input').val('')
         e.preventDefault()
         if (room) {
             var d = new Date();

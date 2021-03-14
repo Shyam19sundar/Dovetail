@@ -93,7 +93,14 @@ function RoomList() {
             type: 'SET_ROOM',
             room: room
         })
+        axios.post('/roomMembers', { roomName: room.roomName })
+            .then(res =>
+                dispatch({
+                    type: 'SET_ROOM_MEMBERS',
+                    roomDetails: res.data
+                }))
     }
+
     return (
         <div className="room-list">
             <div className='add-room-container'>
