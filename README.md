@@ -14,3 +14,5 @@ In Linux, use
 
 
 Deployed Web App : https://dovetail-elan.herokuapp.com/
+
+NOTE : If the server didn't respond add 'Allow CORS' extension and click on the 'C' icon.(Hosting Issues)
