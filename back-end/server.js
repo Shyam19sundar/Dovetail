@@ -277,10 +277,11 @@ function randomString(length, chars) {
         result += chars[Math.round(Math.random() * (chars.length - 1))];
     return result;
 }
-function createUser(email, password, pass, res) {
+function createUser(email, password, name, pass, res) {
     User.create({
         email: email,
-        password: password
+        password: password,
+        name: name
     }, (err, user) => {
         if (err) console.log("Error in adding new user");
         else {
@@ -360,11 +361,12 @@ app.post("/otp-verify", (req, res) => {
 app.post("/signup", (req, res) => {
     const email = req.body.user.email;
     const pass = req.body.user.password;
+    const name = req.body.name
     if (email && pass) {
         bcrypt.genSalt(10, function (err, salt) {
             bcrypt.hash(pass, salt, function (err, hash) {
                 if (!err) {
-                    createUser(email, hash, pass, res);
+                    createUser(email, hash, name, pass, res);
                 } else
                     return res.send("error in hash gen");
             });
@@ -413,6 +415,21 @@ app.post("/login", (req, res) => {
         }
     });
 });
+
+app.get('/profileDetails', (req, res) => {
+    console.log(req.query)
+    User.findOne({ email: req.query.user }, (err, found) => {
+        res.send(found)
+    })
+})
+
+app.post('/updateName', auth, (req, res) => {
+    User.findOne({ email: res.locals.user.email }, (err, found) => {
+        found.name = req.body.name
+        found.save()
+        res.send(found)
+    })
+})
 
 app.post("/refresh", (req, res) => {
     var refreshToken = req.body.refresh;

@@ -13,8 +13,10 @@ let socket;
 
 function RoomMessages() {
     const [message, setmessage] = useState("")
-    const [{ user, room }, dispatch] = useStateValue()
+    const [{ room }, dispatch] = useStateValue()
     const [roomMessages, setRoomMessages] = useState([])
+    const user = sessionStorage.getItem("user");
+
     useEffect(() => {
         socket = io(ENDPOINT);
         socket.on('users', (data) => {
@@ -25,6 +27,7 @@ function RoomMessages() {
                         arr.push(message)
                 }
             })
+            console.log(arr)
             setRoomMessages(arr)
         })
         if (room)
@@ -81,8 +84,17 @@ function RoomMessages() {
 
     const handleSubmit = (e) => {
         e.preventDefault()
-        if (room)
+        if (room) {
+            var d = new Date();
+            var date = d.toLocaleString()
+            const obj = {
+                fromEmail: user,
+                message: message,
+                time: date
+            }
+            setRoomMessages((prev) => prev ? [...prev, obj] : obj)
             accessRoom()
+        }
     }
     return (
         <div className='roomMessages'>
@@ -94,7 +106,7 @@ function RoomMessages() {
                     roomMessages?.map(single => (
                         <div className={single.fromEmail === user ? `chatMessages-message justifyRight` : `chatMessages-message justifyLeft`}>
                             <p>{single.message}</p>
-                            {/* <span>{single.time}</span> */}
+                            <span>{single.time}</span>
                         </div>
                     ))
                 }

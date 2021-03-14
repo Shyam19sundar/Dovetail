@@ -7,7 +7,7 @@ import { useHistory, withRouter } from "react-router-dom";
 import { useStateValue } from '../StateProvider'
 
 function ChatList() {
-    const [{ receiver_id }, dispatch] = useStateValue()
+    const [{ receiver }, dispatch] = useStateValue()
 
     const [members, setmembers] = useState([])
     const [list, setList] = useState([])
@@ -25,6 +25,7 @@ function ChatList() {
         else setsearches([])
     }
     const handleClick = (search) => {
+
         dispatch({
             type: 'SET_CHAT_RECEIVER',
             receiver: search

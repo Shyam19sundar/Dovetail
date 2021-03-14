@@ -1,5 +1,4 @@
 export const initialState = {
-    user: null,
     receiver: null,
     room: null
 };
@@ -15,12 +14,6 @@ export const reducer = (state, action) => {
         case "SET_ROOM": {
             return {
                 room: action.room,
-            };
-        }
-
-        case "SET_USER": {
-            return {
-                user: action.user,
             };
         }
 

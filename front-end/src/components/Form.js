@@ -21,7 +21,7 @@ function Form({ setPath }) {
     });
     const [newPass, setNewPass] = useState(false)
     const [retypePass, setRetypePass] = useState(false)
-
+    const [name, setname] = useState("")
     const handleChange = (e) => {
         setUser({
             ...user,
@@ -62,7 +62,7 @@ function Form({ setPath }) {
         if (retypePass) {
             console.log(user)
             axios
-                .post("/signup", { user })
+                .post("/signup", { user, name })
                 .then((data) => {
                     Cookies.set("access", data.data.access, { sameSite: "strict" });
                     Cookies.set("refresh", data.data.refresh, { sameSite: "strict" });
@@ -132,6 +132,13 @@ function Form({ setPath }) {
         <div className="details-form">
             <div>
                 <div class="details-container">
+                    <label for="Name">Your Name</label>
+                    <input
+                        type="text"
+                        name="name"
+                        onChange={(e) => setname(e.target.value)}
+                        required
+                    />
                     <label for="password">New Password</label>
                     <input
                         type="password"
