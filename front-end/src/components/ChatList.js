@@ -49,7 +49,7 @@ function ChatList() {
                 {
                     searches?.map(search => (
                         <div onClick={() => handleClick(search)} className='chatList-searchList searches'>
-                            <img src='../images/male.png' />
+                            {search?.dp ? <img src={search?.dp} /> : <img src='../images/male.png' />}
                             <div>
                                 <h4>{search.name}</h4>
                                 <p>Hello! Good Morning</p>
@@ -60,7 +60,7 @@ function ChatList() {
                 {
                     list?.map(single => (
                         <div onClick={() => handleClick(single)} className='chatList-searchList'>
-                            <img src='../images/male.png' />
+                            {single?.dp ? <img src={single?.dp} /> : <img src='../images/male.png' />}
                             <div>
                                 <h4>{single.name}</h4>
                                 <p>Hello! Good Morning</p>

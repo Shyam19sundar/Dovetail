@@ -6,6 +6,7 @@ import { hasAccess, refresh } from './Access.js'
 import axios from '../axios';
 import { useStateValue } from '../StateProvider';
 import io from "socket.io-client";
+import $ from 'jquery'
 
 const ENDPOINT = 'http://localhost:5000';
 
@@ -117,7 +118,9 @@ function ChatMessages() {
         })
     }, [ENDPOINT, receiver])
     console.log(user)
+
     const handleSubmit = (e) => {
+        $('.chatMessages-input input').val('')
         e.preventDefault()
         if (receiver) {
             var d = new Date();

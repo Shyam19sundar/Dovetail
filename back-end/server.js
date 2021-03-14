@@ -236,6 +236,14 @@ app.post('/roomMessages', (req, res) => {
             res.send(messages.roomMessages);
         })
 })
+app.post('/roomMembers', (req, res) => {
+    Room.findOne({ roomName: req.body.roomName })
+        .populate('roomMembers')
+        .exec(function (err, members) {
+            if (err) return handleError(err);
+            res.send(members.roomMembers);
+        })
+})
 
 app.post('/roomMessage', auth, (req, res) => {
     var d = new Date();
