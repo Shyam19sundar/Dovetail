@@ -162,7 +162,7 @@ function Profile() {
                         <div className={classes.root}>
                             {profileDetails.dp ?
                                 <div>
-                                    <Avatar className={classes.large} src={profileDetails.dp} />
+                                    <img src={profileDetails.dp} />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
@@ -171,7 +171,7 @@ function Profile() {
                                     }} className="dp-edit" />
                                 </div> :
                                 <div>
-                                    <Avatar className={classes.large} src="../images/male.png" />
+                                    <img src="../images/male.png" />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
