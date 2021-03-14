@@ -7,8 +7,12 @@ import $ from "jquery"
 import axios from '../axios';
 import Cookies from 'js-cookie'
 import { hasAccess, refresh } from './Access.js'
+import Model from './Model';
+import { useStateValue } from '../StateProvider';
 
 function Profile() {
+    const [{ uploaded }, dispatch] = useStateValue()
+
     const [nameChange, setnameChange] = useState(false)
     const [name, setname] = useState("")
     const user = sessionStorage.getItem("user");
@@ -74,9 +78,6 @@ function Profile() {
         accessName()
     }
 
-    const dpChange = () => {
-
-    }
     useEffect(() => {
         axios.get('/profileDetails', {
             params: {
@@ -87,6 +88,12 @@ function Profile() {
 
     return (
         <div>
+            <Model show={uploaded} onHide={() => {
+                dispatch({
+                    type: 'SET_UPLOAD',
+                    uploaded: false
+                })
+            }} />
             {
                 Cookies.get('refresh') ?
                     <div className="profile">
@@ -94,11 +101,21 @@ function Profile() {
                             {profileDetails.dp ?
                                 <div>
                                     <img src={profileDetails.dp} />
-                                    <EditIcon onClick={dpChange} className="dp-edit" />
+                                    <EditIcon onClick={() => {
+                                        dispatch({
+                                            type: 'SET_UPLOAD',
+                                            uploaded: true
+                                        })
+                                    }} className="dp-edit" />
                                 </div> :
                                 <div>
                                     <img src="../images/male.png" />
-                                    <EditIcon onClick={dpChange} className="dp-edit" />
+                                    <EditIcon onClick={() => {
+                                        dispatch({
+                                            type: 'SET_UPLOAD',
+                                            uploaded: true
+                                        })
+                                    }} className="dp-edit" />
                                 </div>}
 
                         </div>

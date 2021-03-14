@@ -416,6 +416,15 @@ app.post("/login", (req, res) => {
     });
 });
 
+app.post('/updatedDp', (req, res) => {
+    console.log(req.body)
+    User.findOne({ email: req.body.user }, (err, found) => {
+        found.dp = req.body.dp
+        found.save()
+        res.send("Done")
+    })
+})
+
 app.get('/profileDetails', (req, res) => {
     console.log(req.query)
     User.findOne({ email: req.query.user }, (err, found) => {
