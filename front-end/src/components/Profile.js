@@ -171,7 +171,7 @@ function Profile() {
                                     }} className="dp-edit" />
                                 </div> :
                                 <div>
-                                    <img className={classes.large} src="../images/male.png" />
+                                    <img src="../images/male.png" />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
