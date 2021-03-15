@@ -10,7 +10,7 @@ import { hasAccess, refresh } from './Access.js'
 import { useStateValue } from '../StateProvider';
 import ReactLoading from 'react-loading';
 
-const ENDPOINT = 'http://localhost:5000';
+const ENDPOINT = 'https://desolate-fortress-07828.herokuapp.com/';
 
 let socket;
 
@@ -75,6 +75,50 @@ function RoomList() {
         }
     };
 
+    const joinRoom = async (access, refreshToken) => {
+        return new Promise((resolve, reject) => {
+            axios
+                .post(
+                    '/joinRoom', {
+                    roomName: roomName
+                },
+                    {
+                        headers: {
+                            authorization: `Bearer ${access}`,
+                        },
+                    }
+                )
+                .then(
+                    (response) => {
+                        console.log(response.data)
+                        resolve(true);
+                        $('.loading-icon').hide()
+                    },
+                    async (error) => {
+                        if (error.response.status === 401)
+                            console.log("You are not authorized!");
+                        else if (error.response.status === 498) {
+                            const access = await refresh(refreshToken);
+                            return await joinRoom(access, refreshToken);
+                        }
+                        resolve(false);
+                    }
+                );
+        });
+    };
+
+
+    const accessJoinroom = async () => {
+        let accessToken = Cookies.get("access");
+        let refreshToken = Cookies.get("refresh");
+        const access = await hasAccess(accessToken, refreshToken);
+        if (!access) {
+            console.log("You are not authorized");
+        } else {
+            await joinRoom(access, refreshToken);
+        }
+    };
+
     const addRoom = (e) => {
         e.preventDefault()
         accessAddRoom()
@@ -93,12 +137,6 @@ function RoomList() {
             type: 'SET_ROOM',
             room: room
         })
-        axios.post('/roomMembers', { roomName: room.roomName })
-            .then(res =>
-                dispatch({
-                    type: 'SET_ROOM_MEMBERS',
-                    roomDetails: res.data
-                }))
     }
 
     return (

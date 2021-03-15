@@ -159,10 +159,10 @@ function Profile() {
             {
                 Cookies.get('refresh') ?
                     <div className="profile">
-                        <div className={classes.root}>
+                        <div className="profile-image">
                             {profileDetails.dp ?
                                 <div>
-                                    <Avatar className={classes.large} src={profileDetails.dp} />
+                                    <img src={profileDetails.dp} />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
@@ -171,7 +171,7 @@ function Profile() {
                                     }} className="dp-edit" />
                                 </div> :
                                 <div>
-                                    <Avatar className={classes.large} src="../images/male.png" />
+                                    <img className={classes.large} src="../images/male.png" />
                                     <EditIcon onClick={() => {
                                         dispatch({
                                             type: 'SET_UPLOAD',
@@ -203,7 +203,7 @@ function Profile() {
                                 <div className='addAreas-container'>
                                     <form onSubmit={handleInterests}>
                                         <input type='text' onChange={(e) => setinterests(e.target.value)} className='addAreas-input' placeholder='Add an area' />
-                                        <SendIcon type="submit" className='areas-send' />
+                                        <SendIcon onClick={handleInterests} type="submit" className='areas-send' />
                                     </form>
                                 </div>
 

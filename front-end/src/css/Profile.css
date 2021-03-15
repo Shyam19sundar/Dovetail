@@ -16,6 +16,8 @@
 }
 .profile-image img {
     width: 200px;
+    max-height: 200px;
+    border-radius: 50%;
 }
 .dp-edit {
     position: absolute;
@@ -137,7 +139,7 @@
     align-items: center;
 }
 .anonymous-profile > div > p{
-  font-size: 40px;
+  font-size: 35px;
   /* font-family: ; */
   font-family: 'Libre Baskerville', sans-serif;
   margin: 20px;
