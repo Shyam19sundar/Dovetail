@@ -9,20 +9,16 @@ import io from "socket.io-client";
 import $ from 'jquery'
 import ReactLoading from 'react-loading';
 
-const ENDPOINT = 'https://desolate-fortress-07828.herokuapp.com/';
+// const ENDPOINT = 'https://desolate-fortress-07828.herokuapp.com/';
+const ENDPOINT = 'http://localhost:5000/';
 
-let socket;
+
+
 
 function ChatMessages() {
-    const [{ receiver }, dispatch] = useStateValue()
+    const [{ receiver, user }, dispatch] = useStateValue()
     const [response, setresponse] = useState(null)
     const [message, setmessage] = useState("")
-    const user = sessionStorage.getItem("user");
-
-    useEffect(() => {
-        $('.loading-icon-chat-center').show()
-    }, [receiver])
-
 
     const directMessage = async (access, refreshToken) => {
         return new Promise((resolve, reject) => {
@@ -39,7 +35,9 @@ function ChatMessages() {
                 .then(
                     (response) => {
                         $('.loading-icon-chat-center').hide()
-                        setresponse(response.data);
+                        if (response.data !== 'No Messages')
+                            setresponse(response.data);
+                        console.log(response.data)
                         resolve(true);
                     },
                     async (error) => {
@@ -110,31 +108,35 @@ function ChatMessages() {
     };
 
     useEffect(() => {
-        if (receiver)
+        setresponse([])
+        if (receiver) {
+            $('.loading-icon-chat-center').show()
             accessDirect()
+            const socket = io(ENDPOINT);
+            socket.on('users', (data) => {
+                console.log(data)
+                var arr = []
+                data.map(message => {
+                    if (user && receiver && receiver?.email)
+                        if ((message.fromEmail === user.email || message.fromEmail === receiver.email) && (message.toEmail === user.email || message.toEmail === receiver.email))
+                            arr.push(message)
+                })
+                // $('.loading-icon-chat-center').hide()
+                if (arr.length !== 0)
+                    setresponse(arr)
+            })
+        }
     }, [ENDPOINT, receiver])
-    console.log(user)
 
-    socket = io(ENDPOINT);
-    socket.on('users', (data) => {
-        var arr = []
-        data.map(message => {
-            if (user && receiver && receiver?.email)
-                if ((message.fromEmail === user || message.fromEmail === receiver.email) && (message.toEmail === user || message.toEmail === receiver.email))
-                    arr.push(message)
-        })
-        // $('.loading-icon-chat-center').hide()
-        setresponse(arr)
-    })
+
 
     const handleSubmit = (e) => {
         $('.chatMessages-input input').val('')
-        e.preventDefault()
         if (receiver) {
             var d = new Date();
             var date = d.toLocaleString(undefined, { timeZone: 'Asia/Kolkata' })
             const obj = {
-                fromEmail: user,
+                fromEmail: user.email,
                 message: message,
                 time: date
             }
@@ -142,7 +144,7 @@ function ChatMessages() {
             accessAdd()
         }
     }
-    console.log(response)
+
     return (
         <div className='chatMessages'>
             <ReactLoading color='#180022' type='spinningBubbles' className='loading-icon-chat-center' />
@@ -153,18 +155,17 @@ function ChatMessages() {
             <div className='chatMessages-container'>
                 {
                     response?.map(single => (
-                        <div className={single.fromEmail === user ? `chatMessages-message justifyRight` : `chatMessages-message justifyLeft`}>
+                        <div className={single.fromEmail === user?.email ? `chatMessages-message justifyRight` : `chatMessages-message justifyLeft`}>
                             <p>{single.message}</p>
                             <span>{single.time}</span>
                         </div>
                     ))
                 }
             </div>
-            <form className='chatMessages-input' onSubmit={handleSubmit}>
+            <div className='chatMessages-input'>
                 <input onChange={(e) => setmessage(e.target.value)} required type='text' placeholder='Send a message' />
                 <SendIcon id='sendIcon' onClick={handleSubmit} />
-                <button type="submit" style={{ display: 'none' }}></button>
-            </form>
+            </div>
         </div>
     )
 }

@@ -2,8 +2,9 @@ export const initialState = {
     receiver: null,
     room: null,
     roomDetails: null,
-    uploaded: false
-
+    uploaded: false,
+    user: null,
+    allMembers: null
 };
 
 export const reducer = (state, action) => {
@@ -30,8 +31,23 @@ export const reducer = (state, action) => {
 
         case 'SET_UPLOAD': {
             return {
+                ...state,
                 uploaded: action.uploaded
             }
+        }
+
+        case 'SET_ALL_MEMBERS': {
+            return {
+                ...state,
+                allMembers: action.allMembers
+            }
+        }
+
+        case "SET_USER": {
+            return {
+                ...state,
+                user: action.user,
+            };
         }
 
         default:

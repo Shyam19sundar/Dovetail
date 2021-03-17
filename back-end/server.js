@@ -48,7 +48,7 @@ app.set("port", 5000);
 const server = http.createServer(app);
 options = {
     cors: true,
-    origins: ["http://127.0.0.1:3000"],
+    origins: ["https://dovetail-elan.herokuapp.com"],
 };
 const io = socketio(server, options);
 // const router = require('./router');
@@ -57,18 +57,16 @@ const io = socketio(server, options);
 app.use(
     cors(
         {
-            origin: "http://localhost:3000",
+            origin: "https://dovetail-elan.herokuapp.com",
             credentials: true,
         }
     )
 );
 
 io.on('connect', (socket) => {
-    console.log("Connected")
 
     const changeStream = Message.watch();
     changeStream.on("change", function (change) {
-        console.log("User COLLECTION CHANGED");
         Message.find({}, (err, data) => {
             if (err) throw err;
             if (data) {
@@ -138,6 +136,7 @@ const userSchema = new mongoose.Schema({
     password: String,
     name: String,
     dp: String,
+    rooms: [{ type: mongoose.Schema.Types.ObjectId, ref: "Room" }],
     interests: [],
 })
 const User = new mongoose.model("User", userSchema)
@@ -168,12 +167,9 @@ app.get("/", (req, res) => {
 })
 
 app.post('/getMe', auth, (req, res) => {
-    res.send(res.locals.user.email)
-})
-
-app.get('/getMyName', (req, res) => {
-    User.findOne({ email: req.query.email }, (err, found) => {
-        res.send(found.name)
+    User.findOne({ email: res.locals.user.email }, (err, found) => {
+        if (!err && found)
+            res.send(found)
     })
 })
 
@@ -234,20 +230,32 @@ app.post('/joinRoom', auth, (req, res) => {
     })
 })
 
-app.post('/directMessage', auth, (req, res) => {
+app.post('/joinedRooms', auth, (req, res) => {
+    User.findOne({ email: res.locals.user.email })
+        .populate('rooms')
+        .exec(function (err, rooms) {
+            if (err) return handleError(err);
+            res.send(rooms);
+        })
+})
 
+app.post('/directMessage', auth, (req, res) => {
     Message.find({
         $and: [
             { $or: [{ fromEmail: res.locals.user.email }, { fromEmail: req.body.receiver }] },
             { $or: [{ toEmail: res.locals.user.email }, { toEmail: req.body.receiver }] }
         ]
     }, (err, found) => {
-        if (!err && found.length !== 0) {
-            res.send(found)
+        if (!err) {
+            if (found.length !== 0) {
+                res.send(found)
+            } else {
+                res.send("No Messages")
+            }
         }
     })
-
 })
+
 
 app.post('/roomMessages', (req, res) => {
     Room.findOne({ roomName: req.body.roomName })
@@ -268,6 +276,7 @@ app.post('/roomMembers', (req, res) => {
 })
 
 app.post('/roomMessage', auth, (req, res) => {
+    console.log("New Room Message")
     var d = new Date();
     var date = d.toLocaleString()
     Message.create({
@@ -420,7 +429,7 @@ app.post("/login", (req, res) => {
                     const access = jwt.sign(
                         { email: user_email },
                         "AccessGiven",
-                        { expiresIn: "900s" }
+                        { expiresIn: "1800s" }
                     );
                     const refresh = jwt.sign(
                         { email: user_email },
@@ -479,7 +488,7 @@ app.post("/refresh", (req, res) => {
     jwt.verify(refreshToken, "TokenIssued", (err, user) => {
         if (!err) {
             const accessToken = jwt.sign({ email: user.email }, "AccessGiven", {
-                expiresIn: "11s",
+                expiresIn: "1800s",
             });
             return res.status(200).json({
                 access: accessToken,
