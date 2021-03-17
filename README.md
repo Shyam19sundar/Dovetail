@@ -5,7 +5,7 @@ We use web tokens for authentication and authorization, which makes our app more
 We have 'Rooms' and 'Chats' options for logged in users.
 'Rooms' enable people to share their thoughts publicly. One can also create new rooms as they wish. Rooms give opportunity for one to find some other like-minded.Then,
 'Chats' enables private communication between those persons.We have profile for each user, which help others to know more about them.
-
+'/Video-Route'enable to share a vedio between two persion available on local network by showing the socket id of the another person (note:Add "proxy":"localhost:8000" in front end package.json).But We are not deploying this feature because of the proxy problem in front end.
 In Linux, use
 1) Install Node Package Manager
 2) git clone the repository or download the folder
