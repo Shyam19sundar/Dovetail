@@ -7,7 +7,8 @@ We have 'Rooms' and 'Chats' options for logged in users.
 'Chats' enables private communication between those persons.We have profile for each user, which help others to know more about them.
 
 
-# '/video' -Route enable to share a video between two persion available on local network by showing the socket id of the another person (note:Add "proxy":"localhost:8000" in front end package.json).But We are not deploying this feature because of the proxy problem in front end.
+# '/video'
+   -Route enable to share a video between two persion available on local network by showing the socket id of the another person (note:Add "proxy":"localhost:8000" in front end package.json).But We are not deploying this feature because of the proxy problem in front end.
 
 In Linux, use
 1) Install Node Package Manager
