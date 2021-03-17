@@ -10,7 +10,8 @@ We have 'Rooms' and 'Chats' options for logged in users.
 # '/video'
    -Route enable to share a video between two persion available on local network by showing the socket id of the another person (note:Add "proxy":"localhost:8000" in front end package.json).But We are not deploying this feature because of the proxy problem in front end.
 
-In Linux, use
+# In Linux, use
+
 1) Install Node Package Manager
 2) git clone the repository or download the folder
 3) In command prompt go inside frontend folder and give 'npm i' and then 'npm start'
