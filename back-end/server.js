@@ -291,6 +291,7 @@ app.post('/roomMessage', auth, (req, res) => {
             found.save()
         })
     })
+    res.send('Added Room Message')
 })
 
 app.get('/allMembers', (req, res) => {
@@ -300,6 +301,7 @@ app.get('/allMembers', (req, res) => {
 })
 
 app.post('/addMessage', auth, (req, res) => {
+    console.log(req.body)
     var d = new Date();
     var date = d.toLocaleString()
     Message.create({
@@ -308,6 +310,7 @@ app.post('/addMessage', auth, (req, res) => {
         toEmail: req.body.toEmail,
         time: date,
     })
+    res.send('Added Message')
 })
 
 function randomString(length, chars) {
@@ -472,6 +475,7 @@ app.get('/profileDetails', (req, res) => {
 })
 
 app.post('/updateName', auth, (req, res) => {
+    console.log(req.body)
     User.findOne({ email: res.locals.user.email }, (err, found) => {
         found.name = req.body.name
         found.save()
