@@ -9,7 +9,8 @@ const jwt = require('jsonwebtoken')
 require("dotenv").config();
 const cors = require("cors");
 app.use(express.json());
-app.set("port", 5000);
+app.set("port", process.env.PORT);
+
 //videochat application --> Working correctly,but need to be deployed....
 //by adding "proxy":"http://localhost:8000"
 
@@ -48,7 +49,7 @@ app.set("port", 5000);
 const server = http.createServer(app);
 options = {
     cors: true,
-    origins: ["https://dovetail-elan.herokuapp.com"],
+    origins: ["https://dovetail-elan.herokuapp.com", 'http://localhost:3000'],
 };
 const io = socketio(server, options);
 // const router = require('./router');
@@ -57,16 +58,19 @@ const io = socketio(server, options);
 app.use(
     cors(
         {
-            origin: "https://dovetail-elan.herokuapp.com",
+            // origin: "https://dovetail-elan.herokuapp.com",
+            origin: 'http://localhost:3000',
             credentials: true,
         }
     )
 );
 
 io.on('connect', (socket) => {
+    console.log("Connected")
 
     const changeStream = Message.watch();
     changeStream.on("change", function (change) {
+        console.log("User COLLECTION CHANGED");
         Message.find({}, (err, data) => {
             if (err) throw err;
             if (data) {
@@ -85,14 +89,14 @@ io.on('connect', (socket) => {
     // socket.join(user.room);
 
 });
-const auth = async (req, res, next) => {
+const auth = (req, res, next) => {
     var accessToken = req.headers["authorization"];
     if (!accessToken)
         return res.status(499).json({
             message: "Access Token required",
         });
     accessToken = accessToken.split(" ")[1];
-    jwt.verify(accessToken, "AccessGiven", async (err, user) => {
+    jwt.verify(accessToken, "AccessGiven", (err, user) => {
         if (user) {
             res.locals.user = user;
             next();
@@ -142,6 +146,7 @@ const userSchema = new mongoose.Schema({
 const User = new mongoose.model("User", userSchema)
 
 const messageSchema = new mongoose.Schema({
+    name: String,
     message: String,
     fromEmail: String,
     toEmail: String,
@@ -222,11 +227,18 @@ app.get('/roomList', (req, res) => {
     })
 })
 
-app.post('/joinRoom', auth, (req, res) => {
+app.post('/joinRoom', (req, res) => {
+
     Room.findOne({ roomName: req.body.roomName }, (err, found) => {
-        found.roomMembers.push(res.locals.user.email)
-        found.save()
-        res.send(found)
+        User.findOne({ email: req.body.email }, (err, foundUser) => {
+            found.roomMembers.push(foundUser._id)
+            found.save()
+            foundUser.rooms.push(found)
+            foundUser.save()
+        })
+
+        // res.send(found)
+        res.redirect('/roomMessages')
     })
 })
 
@@ -276,12 +288,12 @@ app.post('/roomMembers', (req, res) => {
 })
 
 app.post('/roomMessage', auth, (req, res) => {
-    console.log("New Room Message")
     var d = new Date();
     var date = d.toLocaleString()
     Message.create({
         message: req.body.message,
         fromEmail: res.locals.user.email,
+        name: req.body.name,
         time: date,
     }, (err, message) => {
         Room.findOne({ roomName: req.body.room }, (err, found) => {
@@ -301,15 +313,18 @@ app.get('/allMembers', (req, res) => {
 })
 
 app.post('/addMessage', auth, (req, res) => {
-    console.log(req.body)
-    var d = new Date();
-    var date = d.toLocaleString()
-    Message.create({
-        message: req.body.message,
-        fromEmail: res.locals.user.email,
-        toEmail: req.body.toEmail,
-        time: date,
-    })
+    console.log(req.body.message)
+    if (req.body.message) {
+        console.log("inside addmessage")
+        var d = new Date();
+        var date = d.toLocaleString()
+        Message.create({
+            message: req.body.message,
+            fromEmail: res.locals.user.email,
+            toEmail: req.body.toEmail,
+            time: date,
+        })
+    }
     res.send('Added Message')
 })
 
@@ -475,7 +490,6 @@ app.get('/profileDetails', (req, res) => {
 })
 
 app.post('/updateName', auth, (req, res) => {
-    console.log(req.body)
     User.findOne({ email: res.locals.user.email }, (err, found) => {
         found.name = req.body.name
         found.save()
@@ -509,6 +523,10 @@ app.post("/refresh", (req, res) => {
     });
 });
 
-server.listen(app.get("port"), function () {
-    console.log(`App started on port ${app.get("port")}`)
-})
+// server.listen(app.get("port"), function () {
+//     console.log(`App started on port ${app.get("port")}`);
+// });
+
+server.listen(5000, function () {
+    console.log(`App started on port 5000`);
+});
