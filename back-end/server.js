@@ -214,9 +214,9 @@ app.post('/newroom', auth, (req, res) => {
                         })
                     }
                 })
-            } else {
-                res.send("Already Exists")
-            }
+            } else
+                return res.status(409).json({ message: 'Room already exists' })
+            // res.redirect('/roomList')
         }
     })
 })
@@ -238,7 +238,7 @@ app.post('/joinRoom', (req, res) => {
         })
 
         // res.send(found)
-        res.redirect('/roomMembers')
+        res.redirect('/roomMessages')
     })
 })
 
@@ -275,7 +275,8 @@ app.post('/roomMessages', (req, res) => {
         .populate('roomMessages')
         .exec(function (err, messages) {
             if (err) return handleError(err);
-            res.send(messages.roomMessages);
+            else
+                res.send(messages.roomMessages);
         })
 })
 app.post('/roomMembers', (req, res) => {
