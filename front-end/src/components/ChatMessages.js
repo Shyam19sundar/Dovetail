@@ -131,7 +131,6 @@ function ChatMessages() {
 
 
     const handleSubmit = (e) => {
-        e.preventDefault()
         $('.chatMessages-input input').val('')
         if (receiver) {
             var d = new Date();

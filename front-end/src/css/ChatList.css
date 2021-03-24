@@ -1,11 +1,14 @@
 .chatList {
     flex: 0.3;
-    height: 100%;
+    height: 96vh;
     border-right: 1px solid #180022;
     color: aliceblue;
+    display: flex;
+    flex-direction: column;
 }
 .chatList-search {
     display: flex;
+    flex: 0.1;
     align-items: center;
     justify-content: center;
     position: relative;
@@ -30,6 +33,7 @@
     padding-right: 20px;
 }
 .chatList-contact , .chatList-searchList{
+    flex: 0.9;
     display: flex;
     align-items: center;
     cursor: pointer;
@@ -39,6 +43,7 @@
     padding-bottom: 10px;
     border-bottom: 1px solid white;
 }
+
 .chatList-searchList > img {
     /* width: 80px; */
     width: 70px;
@@ -55,7 +60,7 @@
 .chatList-scroll {
     position: relative;
     width: 100%;
-    max-height: 90%;
+    /* max-height: 90%; */
     overflow-y:scroll;
 }
 .loading-icon {

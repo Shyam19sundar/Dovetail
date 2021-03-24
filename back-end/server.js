@@ -238,7 +238,7 @@ app.post('/joinRoom', (req, res) => {
         })
 
         // res.send(found)
-        res.redirect('/roomMessages')
+        res.redirect('/roomMembers')
     })
 })
 
